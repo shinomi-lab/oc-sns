@@ -22,11 +22,14 @@
         --accent: #22d3ee;
         --accent-dark: #0891b2;
         --info: #22d3ee;
+        --source: #facc15;
         --false: #ef4444;
         --corrected: #22c55e;
         --idle: #475569;
         --influencer: #a855f7;
-        --source: #facc15;
+        --source-basic: var(--source);
+        --source-false: #fca5a5;
+        --source-true: #86efac;
         --shadow:
           0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
       }
@@ -73,23 +76,23 @@
       header .subtitle {
         margin: 3px 0 0;
         color: var(--subtle);
-        font-size: 11px;
+        font-size: 12px;
       }
       .section-title {
-        font-size: 10px;
+        font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 1.2px;
         color: var(--subtle);
         margin: 4px 0 2px;
         font-weight: 700;
         border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-        padding-bottom: 4px;
+        /*padding-bottom: 4px;*/
       }
       .config-panel {
         background: rgba(15, 23, 42, 0.4);
         border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 8px;
-        padding: 10px;
+        border-radius: 12px;
+        padding: 12px;
         display: flex;
         flex-direction: column;
         gap: 9px;
@@ -99,22 +102,22 @@
         flex-direction: column;
         gap: 3px;
       }
-      .item-field span {
-        font-size: 11px;
-      }
-      .slider-label-row {
+      .item-label-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
-      .slider-label-left {
+      .item-label-row span {
+        font-size: 14px;
         font-weight: 600;
+      }
+      .item-label-left {
         color: var(--muted);
         display: flex;
         align-items: center;
         gap: 4px;
       }
-      .slider-value {
+      .item-value {
         color: var(--accent);
         font-weight: 700;
       }
@@ -161,6 +164,7 @@
         outline: none;
         -webkit-appearance: none;
         cursor: pointer;
+        margin: 4px 0;
       }
       .slider::-webkit-slider-thumb {
         -webkit-appearance: none;
@@ -175,7 +179,6 @@
       }
       /* タブ */
       .tab-content {
-        /*border: 1px solid rgba(255, 255, 255, 0.06);*/
         border-radius: 0 0 4px 4px;
         border: 1px solid var(--line-soft);
         display: flex;
@@ -186,7 +189,6 @@
       .segmented {
         display: flex;
         flex-direction: row;
-        /*margin-bottom: 2px;*/
       }
       .segmented button {
         flex: 1;
@@ -197,10 +199,9 @@
         color: var(--muted);
         padding: 7px 10px;
         text-align: center;
-        font-size: 11px;
+        font-size: 15px;
         font-weight: 700;
         cursor: pointer;
-        transition: all 150ms ease;
         position: relative;
       }
       .segmented button[aria-pressed="true"] {
@@ -218,7 +219,7 @@
         min-height: 32px;
         border: 1px solid transparent;
         border-radius: 6px;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         cursor: pointer;
         display: flex;
@@ -266,34 +267,61 @@
       .source-control-row {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
         flex-wrap: wrap;
       }
+      .source-label {
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .item-label-left > .basic {
+        color: var(--source-basic);
+      }
+      .item-label-left > .false {
+        color: var(--source-false);
+      }
+      .item-label-left > .true {
+        color: var(--source-true);
+      }
+      .item-value.basic {
+        color: var(--source-basic);
+      }
+      .item-value.false {
+        color: var(--source-false);
+      }
+      .item-value.true {
+        color: var(--source-true);
+      }
       .source-badge {
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 700;
         padding: 2px 7px;
         border-radius: 10px;
-        background: rgba(250, 204, 21, 0.15);
-        border: 1px solid rgba(250, 204, 21, 0.4);
-        color: var(--source);
         white-space: nowrap;
+        border: 1px solid;
+      }
+      .source-badge.basic-badge {
+        background: rgba(250, 204, 21, 0.15);
+        border-color: rgba(250, 204, 21, 0.4);
+        color: var(--source);
       }
       .source-badge.false-badge {
         background: rgba(239, 68, 68, 0.12);
         border-color: rgba(239, 68, 68, 0.4);
-        color: #fca5a5;
+        color: var(--source-false);
       }
       .source-badge.true-badge {
         background: rgba(34, 197, 94, 0.12);
         border-color: rgba(34, 197, 94, 0.4);
-        color: #86efac;
+        color: var(--source-true);
       }
       .source-btn {
+        flex-grow: 1;
+        justify-content: center;
         min-height: 22px;
-        padding: 2px 7px;
+        padding: 4px 7px;
         border-radius: 5px;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         cursor: pointer;
         border: 1px solid var(--line);
@@ -302,7 +330,6 @@
         font-family: inherit;
         display: flex;
         align-items: center;
-        gap: 3px;
         transition: all 150ms;
       }
       .source-btn:hover:not(:disabled) {
@@ -325,7 +352,7 @@
       /* 統計 */
       .metrics-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 5px;
       }
       .metric-card {
@@ -333,17 +360,21 @@
         border: 1px solid var(--line);
         border-radius: 6px;
         padding: 5px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
       .metric-card strong {
         display: block;
-        font-size: 14px;
+        font-size: 16px;
         color: #fff;
       }
       .metric-card span {
         display: block;
-        font-size: 10px;
+        font-size: 12px;
         color: var(--subtle);
         margin-top: 1px;
+        flex-grow: 2;
       }
       /* ログ */
       .log-panel {
@@ -428,7 +459,7 @@
         stroke: var(--influencer);
         stroke-width: 2.5;
       }
-      .node.source {
+      .node.source-basic {
         stroke: var(--source);
         stroke-width: 3;
       }
@@ -445,7 +476,7 @@
         stroke-width: 3 !important;
       }
       .speed-label {
-        font-size: 9px;
+        font-size: 12px;
         fill: rgba(255, 255, 255, 0.7);
         pointer-events: none;
         font-family: monospace;
@@ -508,12 +539,12 @@
         align-items: center;
         gap: 4px;
         color: var(--muted);
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 600;
       }
       .swatch {
-        width: 8px;
-        height: 8px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
         flex-shrink: 0;
       }
@@ -558,16 +589,16 @@
         gap: 10px;
       }
       .legend-speed-label {
-        font-size: 10px;
+        font-size: 12px;
         color: var(--subtle);
-        font-weight: 600;
+        font-weight: 700;
       }
       .speed-items {
         display: flex;
         gap: 8px;
       }
       .speed-item {
-        font-size: 10px;
+        font-size: 12px;
         color: var(--muted);
         font-weight: 600;
         display: flex;
@@ -575,7 +606,8 @@
         gap: 3px;
       }
       .speed-arrow {
-        font-size: 11px;
+        font-family: monospace;
+        font-size: 14px;
         font-weight: 700;
       }
       .legend-toggle {
@@ -592,7 +624,7 @@
         cursor: pointer;
       }
       .legend-toggle-label {
-        font-size: 10px;
+        font-size: 12px;
         color: var(--subtle);
         font-weight: 600;
       }
@@ -638,7 +670,7 @@
         display: flex;
         justify-content: space-between;
         margin-top: 5px;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
       }
       /* ライブインフォパネル */
@@ -666,7 +698,7 @@
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         cursor: grab;
         flex-shrink: 0;
@@ -731,7 +763,7 @@
         min-width: 170px;
       }
       .menu-header {
-        font-size: 10px;
+        font-size: 12px;
         color: var(--subtle);
         font-weight: 800;
         padding: 3px 7px;
@@ -739,7 +771,7 @@
         margin-bottom: 3px;
       }
       .menu-section-label {
-        font-size: 9px;
+        font-size: 10px;
         color: var(--subtle);
         padding: 3px 7px 1px;
         font-weight: 700;
@@ -752,7 +784,7 @@
         color: var(--muted);
         text-align: left;
         padding: 5px 7px;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 600;
         cursor: pointer;
         border-radius: 4px;
@@ -765,9 +797,6 @@
       .menu-item:hover {
         background: var(--accent-dark);
         color: #fff;
-      }
-      .menu-item.speed-item-active {
-        color: var(--accent);
       }
       .menu-separator {
         border: none;
@@ -794,16 +823,16 @@
       <div class="app">
         <aside class="sidebar">
           <header>
-            <h1>SNS情報拡散シミュレーター</h1>
-            <p class="subtitle">情報がネットワーク上でどう広がるかを可視化</p>
+            <h1>SNS情報拡散シミュレーション</h1>
+            <!--<p class="subtitle">ネットワーク上での情報の広がりを見てみよう</p>-->
           </header>
 
           <div class="section-title">ネットワーク</div>
           <div class="config-panel">
             <div class="item-field">
-              <div class="slider-label-row">
+              <div class="item-label-row">
                 <span>ユーザー数</span>
-                <span class="slider-value" x-text="userCount + '人'"></span>
+                <span class="item-value" x-text="userCount + '人'"></span>
               </div>
               <input
                 type="range"
@@ -818,9 +847,9 @@
               />
             </div>
             <!--<div class="item-field">
-              <div class="slider-label-row">
+              <div class="item-label-row">
                 <span>繋がりのレベル</span>
-                <span class="slider-value" x-text="mParam"></span>
+                <span class="item-value" x-text="mParam"></span>
               </div>
               <input
                 type="range"
@@ -833,7 +862,7 @@
                 x-model.number="mParam"
               />
             </div>-->
-            <!--<button
+            <button
               type="button"
               class="btn btn-secondary"
               id="regenerateButton"
@@ -842,16 +871,16 @@
               @click="regenerateNetwork()"
             >
               ネットワークを再生成
-            </button>-->
+            </button>
           </div>
 
           <div class="section-title">シナリオ</div>
           <div class="config-panel">
             <div class="item-field">
-              <div class="slider-label-row">
+              <div class="item-label-row">
                 <span>インフルエンサー人数</span>
                 <span
-                  class="slider-value"
+                  class="item-value"
                   x-text="influencerCount + '人'"
                 ></span>
               </div>
@@ -870,295 +899,83 @@
 
             <div>
               <div class="segmented" role="group">
-                <button
-                  type="button"
-                  id="basicScenarioTab"
-                  :aria-pressed="String(scenario === 'basic')"
-                  :disabled="isSpreading"
-                  @click="setScenario('basic')"
-                >
-                  通常の情報拡散
-                </button>
-                <button
-                  type="button"
-                  id="correctionScenarioTab"
-                  :aria-pressed="String(scenario === 'correction')"
-                  :disabled="isSpreading"
-                  @click="setScenario('correction')"
-                >
-                  デマ vs 訂正情報
-                </button>
+                <template x-for="(tab, index) in scenarioTabs" :key="index">
+                  <button
+                    type="button"
+                    :aria-pressed="String(scenario === tab.kind)"
+                    :disabled="isSpreading"
+                    @click="setScenario(tab.kind)"
+                    x-text="tab.label"
+                  >
+                  </button>
+                </template>
               </div>
 
-              <!-- 基本シナリオ -->
-              <div
-                id="basicParamsForm"
-                class="tab-content"
-                x-show="scenario === 'basic'"
-              >
-                <div class="item-field">
-                  <div class="slider-label-row">
-                    <div class="slider-label-left">
-                      <span>情報の伝わりやすさ</span>
+              <!-- シナリオオプション -->
+              <div class="tab-content">
+                <template x-for="(param, index) in sliders()" :key="index">
+                  <div class="item-field">
+                    <div class="item-label-row">
+                      <div class="item-label-left">
+                        <span x-text="param.label"></span>
+                      </div>
                       <span
-                        class="warn-icon"
-                        :class="{ visible: basicSpreadPct === 100 }">!</span>
-                        <span class="tooltip" >全員に必ず情報が届きます</span>
+                        class="item-value"
+                        x-text="param.valueLabel"
+                      ></span>
                     </div>
-                    <span
-                      class="slider-value"
-                      x-text="basicSpreadPct + '%'"
-                    ></span>
-                  </div>
-                  <input
-                    type="range"
-                    id="basicSpreadInput"
-                    min="0"
-                    max="100"
-                    step="5"
-                    value="50"
-                    class="slider"
-                    :disabled="isSpreading"
-                    x-model.number="basicSpreadPct"
-                    @input="basicSpreadProbability = basicSpreadPct / 100"
-                  />
-                </div>
-                <!-- 基本シナリオ発信源 -->
-                <div class="item-field">
-                  <span>発信源</span>
-                  <div class="source-control-row">
-                    <span
-                      class="source-badge"
-                      x-text="sourceIds.basic.length + ' 件'"
-                    ></span>
-                    <button
-                      type="button"
-                      class="source-btn"
+                    <input
+                      type="range"
+                      :min="param.min"
+                      :max="param.max"
+                      :step="param.step"
+                      :value="param.value"
+                      x-model.number="param.value"
+                      class="slider"
                       :disabled="isSpreading"
-                      @click="shuffleSource('basic')"
-                      title="ランダムに1件追加"
-                    >
-                      ⇌ ランダム
-                    </button>
-                    <button
-                      type="button"
-                      class="source-btn"
-                      :disabled="isSpreading"
-                      @click="clearSource('basic')"
-                      title="すべて解除"
-                    >
-                      ✕ 解除
-                    </button>
+                    />
                   </div>
-                  <div
-                    class="warn-text"
-                    :class="{ visible: sourceIds.basic.length > Math.ceil(userCount * 0.05) }"
-                  >
-                    ⚠ 発信源が多すぎます（ユーザー数の5%超）
-                  </div>
-                </div>
-              </div>
-
-              <!-- 対立シナリオ -->
-              <div
-                id="correctionParamsForm"
-                class="tab-content"
-                x-show="scenario === 'correction'"
-              >
-                <div class="item-field">
-                  <div class="slider-label-row">
-                    <div class="slider-label-left">
-                      <span>デマの広がりやすさ</span>
+                </template>
+                <!-- 発信源 -->
+                <template x-for="(item, index) in availableSources" :key="index">
+                  <div class="item-field">
+                    <div class="item-label-row">
+                      <div class="item-label-left">
+                        <span :class="`${item.kind}`" x-text="item.label"></span>
+                        <span class="item-value"
+                          style="color: lightslategray"
+                          x-text="`（最大 ${maxSourceCount}個）`"></span>
+                      </div>
                       <span
-                        class="warn-icon"
-                        :class="{ visible: misinfoPct === 100 }"
-                        >!<span class="tooltip"
-                          >すべてのデマが広がります</span
-                        ></span
-                      >
+                        :class="`item-value ${item.kind}`"
+                        x-text="item.count + ' 個'"
+                      ></span>
                     </div>
-                    <span class="slider-value" x-text="misinfoPct + '%'"></span>
-                  </div>
-                  <input
-                    type="range"
-                    id="misinfoProbabilityInput"
-                    min="0"
-                    max="100"
-                    step="5"
-                    value="80"
-                    class="slider"
-                    :disabled="isSpreading"
-                    x-model.number="misinfoPct"
-                    @input="misinfoProbability = misinfoPct / 100"
-                  />
-                </div>
-                <div class="item-field">
-                  <div class="slider-label-row">
-                    <div class="slider-label-left">
-                      <span>訂正情報の広がりやすさ</span>
-                      <span
-                        class="warn-icon"
-                        :class="{ visible: correctionSpreadPct === 100 }"
-                        >!<span class="tooltip"
-                          >すべての訂正情報が広がります</span
-                        ></span
-                      >
+                    <div class="source-control-row">
+                      <button
+                        type="button"
+                        class="source-btn"
+                        :disabled="isSpreading || item.count == maxSourceCount"
+                        @click="addRundomSource(item.kind)"
+                        title="ランダムで追加"
+                      >ランダムで追加</button>
+                      <button
+                        type="button"
+                        class="source-btn"
+                        :disabled="isSpreading || item.count == 0"
+                        @click="removeSource(item.kind)"
+                        title="削除"
+                      >削除</button>
+                      <button
+                        type="button"
+                        class="source-btn"
+                        :disabled="isSpreading || item.count == 0"
+                        @click="clearSource(item.kind)"
+                        title="すべて削除"
+                      >すべて削除</button>
                     </div>
-                    <span
-                      class="slider-value"
-                      x-text="correctionSpreadPct + '%'"
-                    ></span>
                   </div>
-                  <input
-                    type="range"
-                    id="correctionSpreadInput"
-                    min="0"
-                    max="100"
-                    step="5"
-                    value="60"
-                    class="slider"
-                    :disabled="isSpreading"
-                    x-model.number="correctionSpreadPct"
-                    @input="correctionSpreadProbability = correctionSpreadPct / 100"
-                  />
-                </div>
-                <div class="item-field">
-                  <div class="slider-label-row">
-                    <div class="slider-label-left">
-                      <span>デマ信者が訂正を受け入れる確率</span>
-                      <span
-                        class="warn-icon"
-                        :class="{ visible: correctionChancePct === 100 }"
-                        >!<span class="tooltip"
-                          >デマを信じた全員が訂正を受け入れます</span
-                        ></span
-                      >
-                    </div>
-                    <span
-                      class="slider-value"
-                      x-text="correctionChancePct + '%'"
-                    ></span>
-                  </div>
-                  <input
-                    type="range"
-                    id="correctionChanceInput"
-                    min="0"
-                    max="100"
-                    step="5"
-                    value="40"
-                    class="slider"
-                    :disabled="isSpreading"
-                    x-model.number="correctionChancePct"
-                    @input="correctionChance = correctionChancePct / 100"
-                  />
-                </div>
-                <div class="item-field">
-                  <div class="slider-label-row">
-                    <span>訂正情報の発信タイミング</span>
-                    <span
-                      class="slider-value"
-                      x-text="(correctionDelaySlider / 2).toFixed(1) + ' 時間後'"
-                    ></span>
-                  </div>
-                  <input
-                    type="range"
-                    id="correctionDelayInput"
-                    min="0"
-                    max="24"
-                    step="1"
-                    value="6"
-                    class="slider"
-                    :disabled="isSpreading"
-                    x-model.number="correctionDelaySlider"
-                    @input="correctionDelayHours = correctionDelaySlider / 2"
-                  />
-                </div>
-                <!-- デマ発信源 -->
-                <div class="item-field">
-                  <div
-                    style="
-                      font-size: 10px;
-                      color: #fca5a5;
-                      margin-bottom: 4px;
-                      font-weight: 600;
-                    "
-                  >
-                    デマ発信源
-                  </div>
-                  <div class="source-control-row">
-                    <span
-                      class="source-badge false-badge"
-                      x-text="sourceIds.false.length + ' 件'"
-                    ></span>
-                    <button
-                      type="button"
-                      class="source-btn"
-                      :disabled="isSpreading"
-                      @click="shuffleSource('false')"
-                      title="ランダムに1件追加"
-                    >
-                      ⇌ ランダム
-                    </button>
-                    <button
-                      type="button"
-                      class="source-btn"
-                      :disabled="isSpreading"
-                      @click="clearSource('false')"
-                      title="すべて解除"
-                    >
-                      ✕ 解除
-                    </button>
-                  </div>
-                  <div
-                    class="warn-text"
-                    :class="{ visible: sourceIds.false.length > Math.ceil(userCount * 0.05) }"
-                  >
-                    ⚠ 発信源が多すぎます（ユーザー数の5%超）
-                  </div>
-                </div>
-                <!-- 訂正発信源 -->
-                <div class="item-field">
-                  <div
-                    style="
-                      font-size: 10px;
-                      color: #86efac;
-                      margin-bottom: 4px;
-                      font-weight: 600;
-                    "
-                  >
-                    訂正情報発信源
-                  </div>
-                  <div class="source-control-row">
-                    <span
-                      class="source-badge true-badge"
-                      x-text="sourceIds.true.length + ' 件'"
-                    ></span>
-                    <button
-                      type="button"
-                      class="source-btn"
-                      :disabled="isSpreading"
-                      @click="shuffleSource('true')"
-                      title="ランダムに1件追加"
-                    >
-                      ⇌ ランダム
-                    </button>
-                    <button
-                      type="button"
-                      class="source-btn"
-                      :disabled="isSpreading"
-                      @click="clearSource('true')"
-                      title="すべて解除"
-                    >
-                      ✕ 解除
-                    </button>
-                  </div>
-                  <div
-                    class="warn-text"
-                    :class="{ visible: sourceIds.true.length > Math.ceil(userCount * 0.05) }"
-                  >
-                    ⚠ 発信源が多すぎます（ユーザー数の5%超）
-                  </div>
-                </div>
+                </template>
               </div>
             </div>
           </div>
@@ -1166,10 +983,10 @@
           <div class="section-title">シミュレーション</div>
           <div class="config-panel">
             <div class="item-field">
-              <div class="slider-label-row">
+              <div class="item-label-row">
                 <span>再生速度</span>
                 <span
-                  class="slider-value"
+                  class="item-value"
                   x-text="'×' + speedMultiplier.toFixed(2)"
                 ></span>
               </div>
@@ -1191,16 +1008,19 @@
                 type="button"
                 class="btn btn-primary"
                 @click="handleStart()"
+                :disabled="!isRunnable"
+                x-show="runStatus === 'none'"
               >
                 <span>▶ 開始</span>
               </button>
-              <!-- 中断ボタン -->
+              <!-- 中断/リセットボタン -->
               <button
                 type="button"
                 class="btn btn-abort"
-                @click="handleAbort()"
+                x-show="isSpreading || isFinished"
+                @click="handleAbortOrReset()"
               >
-                <span>■ 中断</span>
+                <span x-text="isFinished ? 'リセット' : '■ 中断'"></span>
               </button>
               <!-- 一時停止/再開ボタン -->
               <button
@@ -1215,7 +1035,7 @@
               <button
                 type="button"
                 class="btn btn-step"
-                :disabled="!isSpreading || !isPaused"
+                :disabled="!isPaused"
                 @click="handleStep()"
               >
                 +1秒
@@ -1226,27 +1046,28 @@
           <div class="section-title">統計</div>
           <div class="metrics-grid">
             <div class="metric-card">
-              <strong x-text="ui.reached"></strong><span>情報が届いた割合</span>
+              <span>情報が届いた割合</span>
+              <strong x-text="ui.reached"></strong>
             </div>
             <div class="metric-card">
-              <strong x-text="ui.falseCount"></strong
-              ><span>デマに接した人数</span>
+              <span>デマに接した人数</span>
+              <strong x-text="ui.falseCount"></strong>
             </div>
             <div class="metric-card">
-              <strong x-text="ui.trueCount"></strong
-              ><span>訂正情報を受け取った人数</span>
+              <span>訂正情報を受け取った人数</span>
+              <strong x-text="ui.trueCount"></strong>
             </div>
             <div class="metric-card">
-              <strong x-text="ui.time50"></strong
-              ><span>半数に届くまでの時間</span>
+              <span>半数に届くまでの時間</span>
+              <strong x-text="ui.time50"></strong>
             </div>
             <div class="metric-card">
-              <strong x-text="ui.time90"></strong
-              ><span>ほぼ全員に届くまでの時間</span>
+              <span>ほぼ全員に届くまでの時間</span>
+              <strong x-text="ui.time90"></strong>
             </div>
             <div class="metric-card">
-              <strong x-text="ui.done"></strong
-              ><span>シミュレーション時間</span>
+              <span>シミュレーション時間</span>
+              <strong x-text="ui.done"></strong>
             </div>
           </div>
 
@@ -1380,7 +1201,7 @@
           <hr class="menu-separator" />
           <div class="menu-section-label">反応速度</div>
           <template x-for="(p, index) in speedPatterns()" :key="index">
-            <button class="menu-item speed-menu-item" @click="changeSpeed(index)">
+            <button class="menu-item" @click="changeSpeed(index)">
               <span
                 class="speed-arrow"
                 :style="{color: p.color}"
@@ -1393,18 +1214,12 @@
       </template>
 
     <script>
-      const ALL_LEGENDS = {
-        idle: { kind: "idle", label: "未接触" },
-        influencer : { kind: "influencer", label: "インフルエンサー" },
-        source: { kind: "source", label: "発信源" },
-        info: { kind: "info", label: "情報を受け取った" },
-        idle: { kind: "idle", label: "未接触" },
-        influencer: { kind: "influencer", label: "インフルエンサー" },
-        sourceFalse: { kind: "source-false", label: "デマ発信源" },
-        sourceTrue: { kind: "source-true", label: "訂正情報発信源" },
-        false: { kind: "false", label: "デマを信じた" },
-        corrected: { kind: "corrected", label: "訂正情報を信じた" },
-      };
+      /**
+        * @typedef {"basic" | "false" | "true"} Source
+        *
+        * @typedef {"basic" | "correction"} Scenario
+        */
+
       const SPEED_PATTERNS = [
         { label: "最速", arrow: "↑", ms: 160, color: "#f472b6" },
         { label: "早い", arrow: "↗", ms: 240, color: "#fb923c" },
@@ -1418,43 +1233,275 @@
 
       const INFO_PROPS = {
         basic: {
-          icon: "🏁",
+          name: "",
         },
         false: {
-          icon: "🔴",
           name: "デマ",
         },
         true: {
-          icon: "🟢",
           name: "訂正",
           longName: "訂正情報",
         },
       };
 
+      /**
+       * @type{Record<Source, {icon: string, name: string}>}
+       */
+      const SOURCE_PROPS = {
+        basic: {
+          icon: "🏁",
+          name: `${INFO_PROPS.basic.name}発信源`,
+        },
+        false: {
+          icon: "🔴",
+          name: `${INFO_PROPS.false.name}発信源`,
+        },
+        true: {
+          icon: "🟢",
+          name: `${INFO_PROPS.true.longName}発信源`,
+        }
+      }
+
+      /**
+       * @type {{kind: Scenario; label: string}[]}
+       */
+      const SCENARIO_TABS = [
+        {
+          kind: "basic",
+          label: "単純な情報拡散",
+        },
+        {
+          kind: "correction",
+          label: `${INFO_PROPS.false.name} vs ${INFO_PROPS.true.name}`,
+        },
+      ];
+
+      const ALL_LEGENDS = {
+        idle: { kind: "idle", label: "未到達" },
+        influencer : { kind: "influencer", label: "インフルエンサー" },
+        info: { kind: "info", label: "情報を受け取った" },
+        idle: { kind: "idle", label: "未到達" },
+        influencer: { kind: "influencer", label: "インフルエンサー" },
+        source: { kind: "source", label: SOURCE_PROPS.basic.name },
+        sourceFalse: { kind: "source-false", label: SOURCE_PROPS.false.name },
+        sourceTrue: { kind: "source-true", label: SOURCE_PROPS.true.name },
+        false: { kind: "false", label: `${INFO_PROPS.false.name}を信じた` },
+        corrected: { kind: "corrected", label: `${INFO_PROPS.true.longName}を信じた` },
+      };
+
       // Alpine コンポーネント定義
       function simulator() {
+        /**
+          * @typedef {"idle" | "info" | "false" | "corrected"} Status
+          */
+        /**
+        * @typedef {Object} Node
+        * @property {number} id
+        * @property {Set<number>} outNeighbors
+        * @property {Set<number>} inNeighbors
+        * @property {number} [x]
+        * @property {number} y
+        * @property {number} vx
+        * @property {number} vy
+        * @property {bool} isInfluencer
+        * @property {number} speedIndex
+        * @property {Source} [source]
+        * @property {bool} isHighlighted
+        * @property {Status} status
+        * @property {readonly number} degree
+        * @property {readonly number[]} neighbors
+        */
+
+        /**
+         * @typedef {Object} Link
+         * @property {number} source
+         * @property {number} target
+         */
+
+        /**
+        * @typedef {Object} SliderParams
+        * @property {string} label
+        * @property {readonly string} valueLabel
+        * @property {number} min
+        * @property {number} max
+        * @property {number} step
+        * @property {number} value
+        * @property {readonly number} into
+        */
+
+        /** @type {SliderParams} */
+        const basicInfoSlider = {
+          min: 0,
+          max: 100,
+          step: 5,
+          value: 50,
+          get valueLabel() { return this.value + '%'; },
+          get into() { return this.value / 100; },
+          label: "情報の伝わりやすさ",
+        };
+        /** @type {SliderParams} */
+        const misInfoSlider = {
+          min: 0,
+          max: 100,
+          step: 5,
+          value: 80,
+          get valueLabel() { return this.value + '%'; },
+          get into() { return this.value / 100; },
+          label: `${INFO_PROPS.false.name}の伝わりやすさ`,
+        };
+        /** @type {SliderParams} */
+        const trueInfoSlider = {
+          min: 0,
+          max: 100,
+          step: 5,
+          value: 60,
+          get valueLabel() { return this.value + '%'; },
+          get into() { return this.value / 100; },
+          label: `${INFO_PROPS.true.longName}の伝わりやすさ`,
+        };
+        /** @type {SliderParams} */
+        const correctChanceSlider = {
+          min: 0,
+          max: 100,
+          step: 5,
+          value: 40,
+          get valueLabel() { return this.value + '%'; },
+          get into() { return this.value / 100; },
+          label: `${INFO_PROPS.true.longName}を受け入れる確率`,
+        };
+        /** @type {SliderParams} */
+        const trueInfoDelaySlider = {
+          min: 0,
+          max: 12,
+          step: 1,
+          value: 4,
+          get into() { return this.value / 4; },
+          get valueLabel() { return this.into.toFixed(2) + '秒後'; },
+          label: `${INFO_PROPS.true.longName}の発信タイミング`,
+        };
+
+        /**
+        * @type { Node[] }
+        */
+        let _nodes = [];
+        /**
+        * @type { Link[] }
+        */
+        let _links = [];
+        /**
+         * @type { Node[] }
+         */
+        let _sortedNodes = [];
+
+
+        /**
+         * @type {Record<Status,number>}
+         */
+        const stat = {
+          idle: 0,
+          info: 0,
+          false: 0,
+          corrected: 0,
+        };
+
+
+        /**
+         * @param { number } id
+         * @returns { Node }
+         */
+        function newNode(id) {
+          return {
+            id,
+            outNeighbors: new Set(),
+            inNeighbors: new Set(),
+            isInfluencer: false,
+            speedIndex: 0,
+            source: undefined,
+            isHighlighted: false,
+            status: "idle",
+            get degree() {
+              return this.inNeighbors.size + this.outNeighbors.size;
+            },
+            get neighbors() {
+              return [...this.inNeighbors, ...this.outNeighbors];
+            }
+          }
+        }
+        /**
+         * @param { number } n
+         * @param { number } m
+         * @param { () => number } random
+         */
+        function generateBA(n, m, random) {
+          const mClamped = Math.min(m, n - 1);
+          /** @type { Node[] } */
+          const nodes = d3.range(n).map(newNode);
+          /** @type { Link[] } */
+          const links = [];
+
+          /**
+           *  @param { number } a
+           *  @param { number } b
+          */
+          const addLink = (a, b) => {
+            if (a === b) return;
+            if (nodes[a].outNeighbors.has(b)) {
+              return;
+            }
+            links.push({ source: a, target: b });
+            nodes[a].outNeighbors.add(b);
+            nodes[b].inNeighbors.add(a);
+          };
+
+          const initSize = Math.min(mClamped + 1, n);
+          for (let i = 0; i < initSize; i++) {
+            for (let j = i + 1; j < initSize; j++) {
+              addLink(i, j);
+            }
+          }
+
+          for (let i = initSize; i < n; i++) {
+            const targets = new Set();
+            let attempts = 0;
+            while (
+              targets.size < Math.min(mClamped, i) &&
+              attempts < mClamped * 20
+            ) {
+              attempts++;
+              let r = random() * (links.length * 2 || 1),
+                cumul = 0;
+              for (let j = 0; j < i; j++) {
+                cumul += nodes[j].degree;
+                if (r <= cumul && !targets.has(j)) {
+                  targets.add(j);
+                  break;
+                }
+              }
+            }
+            targets.forEach((t) => addLink(t, i));
+          }
+          _nodes = nodes;
+          _links = links;
+          _sortedNodes = [..._nodes].sort((a, b) => b.degree - a.degree);
+        }
+
         return {
           // ===== Alpine リアクティブ状態（UI表示に関わるもの） =====
+          /**
+           * @type {Scenario}
+           */
           scenario: "basic",
-          userCount: 250,
+          userCount: 100,
           mParam: 1,
           influencerCount: 2,
-          // スライダーはpct/slider変数をモデルとし、確率値はinput時に同期
-          basicSpreadPct: 50,
-          basicSpreadProbability: 0.5,
-          misinfoPct: 80,
-          misinfoProbability: 0.8,
-          correctionSpreadPct: 60,
-          correctionSpreadProbability: 0.6,
-          correctionChancePct: 40,
-          correctionChance: 0.4,
-          correctionDelaySlider: 6, // スライダー生値（0〜24）
-          correctionDelayHours: 3.0, // 実際の時間（/ 2）
+
           speedSlider: 100,
           speedMultiplier: 1.0,
           showSpeedIcons: true,
-          isSpreading: false,
-          isPaused: false,
+          /**
+           * @type { "none" | "running" | "paused" | "finished" }
+           */
+          runStatus: "none",
           panelMinimized: false,
           // UI表示用まとめオブジェクト（統計・バランスメータ）
           ui: {
@@ -1468,21 +1515,85 @@
             barIdlePct: 100,
             barTruePct: 0,
           },
+          /**
+           * @type {{
+           *  node: Node,
+           * } | null}
+           */
           contextMenu: null,
 
-          // ===== Alpine非リアクティブ状態（D3・シミュレーションが管理） =====
-          // ※ Alpine x-dataの中に置くが、変更時にAlpineが再描画しないよう
-          //   SetやMapはalpineのリアクティブ対象外（プロパティとして参照はできる）
-          _nodes: [],
-          _links: [],
-          _degrees: [],
-          _adjacency: new Map(),
-          _statuses: new Map(),
-          sourceIds: {
-            "basic": [],
-            "false": [],
-            "true": [],
+          get scenarioTabs() {
+            return SCENARIO_TABS;
           },
+
+          sliders() {
+            if (this.scenario === "basic") {
+              return [basicInfoSlider];
+            } else {
+              return [misInfoSlider, trueInfoSlider, trueInfoDelaySlider, correctChanceSlider];
+            }
+          },
+
+          // スライダー値の変換後の値のゲッター（変換は各スライダーパラメータで定義）
+          get basicSpreadProbability() {
+            return basicInfoSlider.into;
+          },
+          get misinfoProbability() {
+            return misInfoSlider.into;
+          },
+          get correctionSpreadProbability() {
+            return misInfoSlider.into;
+          },
+          get correctionChance() {
+            return correctChanceSlider.into;
+          },
+          get correctionDelaySec() {
+            return trueInfoDelaySlider.into;
+          },
+
+          /**
+            * @type {Record<Source, number[]>}
+            */
+          sourceIds: {
+            basic: [],
+            false: [],
+            true: [],
+          },
+
+          /**
+           * @typedef {Object} SourceInfo
+           * @property {Source} kind
+           * @property {string} label
+           * @property {readonly number} count
+           */
+
+           /**
+            * @param {Source} kind
+            * @returns {SourceInfo}
+            */
+           _sourceInfo(kind) {
+             const count = this.sourceIds[kind].length;
+             return {
+               kind,
+               label: SOURCE_PROPS[kind]?.longName ?? SOURCE_PROPS[kind].name,
+               count,
+             };
+           },
+
+          /**
+           * @returns {SourceInfo[]}
+           */
+          get availableSources() {
+            if (this.scenario === "basic") {
+              return [this._sourceInfo("basic")];
+            } else {
+              return [this._sourceInfo("false"), this._sourceInfo("true")];
+            }
+          },
+          get maxSourceCount() {
+            return Math.ceil(this.userCount * 0.05);
+          },
+
           _activeLinkKeys: new Set(),
           _simulation: null,
           _nodeSelection: null,
@@ -1494,18 +1605,35 @@
           _graphData: [],
           _seed: 42,
           _stepRequested: false,
-          // _runCounter: 0,
+
+          get isRunnable() {
+            return (this.runStatus === "none" &&
+              (this.scenario === "basic" && this.sourceIds.basic.length > 0)
+              || (this.scenario === "correction" &&
+                this.sourceIds.false.length + this.sourceIds.true.length > 0)
+            );
+          },
+          get isSpreading() {
+            return this.runStatus === "running" || this.runStatus === "paused";
+          },
+          get isPaused() {
+            return this.runStatus === "paused";
+          },
+          get isFinished() {
+            return this.runStatus === "finished";
+          },
 
           // ===== Alpine init =====
           init() {
             this._buildNetwork();
             this._renderNetwork();
-            this._setFloatingPanelPositions();
-            this._resetUiMetrics();
+            this._resetStat();
             this._setupContextMenu();
+
+            this._setFloatingPanelPositions();
             this._setupDrag();
+
             this._setupResizeObserver();
-            // this._updateLegend();
             window.addEventListener("resize", () => {
               if (!this.isSpreading) this._renderNetwork();
             });
@@ -1519,6 +1647,7 @@
               label: `${p.arrow} ${p.label}`,
             }));
           },
+
           speedPatterns() {
             return SPEED_PATTERNS;
           },
@@ -1546,7 +1675,7 @@
           regenerateNetwork() {
             if (this.isSpreading) return;
             this._seed += 1;
-            this._nodes.forEach((n) => {
+            _nodes.forEach((n) => {
               n.x = undefined;
               n.y = undefined;
               n.vx = 0;
@@ -1554,7 +1683,7 @@
             });
             this._buildNetwork();
             this._renderNetwork();
-            this._resetUiMetrics();
+            this._resetStat();
             this._graphData = [];
             this._drawGraph();
             this._writeLog("ネットワークを再生成しました");
@@ -1563,7 +1692,7 @@
           // ===== 発信源操作 =====
           _clearSource(kind) {
             this.sourceIds[kind].forEach((id) => {
-              this._nodes[id].source = null;
+              _nodes[id].source = undefined;
             });
             this.sourceIds[kind] = [];
           },
@@ -1572,12 +1701,21 @@
             this._clearSource("false");
             this._clearSource("true");
           },
+          /**
+           * @param {Source} kind
+           */
+          removeSource(kind) {
+            const id = this.sourceIds[kind].pop();
+            _nodes[id].source = undefined;
+            this._updateVisuals();
+            this._writeLog(`ノード${id}の${SOURCE_PROPS[kind].name}を解除しました`);
+          },
           clearSource(kind) {
             this._clearSource(kind);
             this._updateVisuals();
-            this._writeLog(`${INFO_PROPS[kind]?.name ?? ""}発信源をリセットしました`);
+            this._writeLog(`${SOURCE_PROPS[kind].name}をリセットしました`);
           },
-          shuffleSource(kind) {
+          addRundomSource(kind) {
             let id;
             switch (kind) {
               case "basic":
@@ -1593,32 +1731,30 @@
                 return;
             }
             this.sourceIds[kind].push(id);
-            this._nodes[id].source = kind;
+            _nodes[id].source = kind;
             this._updateVisuals();
-            this._writeLog(
-              `${INFO_PROPS[kind]?.name ?? ""}発信源をランダムに1件追加しました`,
-            );
+            this._writeLog(`${SOURCE_PROPS[kind].name}をランダムで1つ追加しました`);
           },
           toggleSource(itemSource) {
             const node = this.contextMenu.node;
             if (node.source === itemSource) {
               this.sourceIds[itemSource] = this.sourceIds[itemSource].filter((id) => id === node.id);
-              node.source = null;
+              node.source = undefined;
               this._writeLog(
-                `ノード${node.id}の${INFO_PROPS[itemSource]?.name ?? ""}発信源を解除しました`,
+                `ノード${node.id}の${SOURCE_PROPS[itemSource].name}を解除しました`,
               );
             } else {
               if (node.source !== null) {
                 this.sourceIds[node.source] = this.sourceIds[node.source].filter((id) => id === node.id);
-                node.source = null;
+                node.source = undefined;
                 this._writeLog(
-                  `ノード${node.id}の${INFO_PROPS[node.source]?.name ?? ""}発信源を解除しました`,
+                  `ノード${node.id}の${SOURCE_PROPS[node.source].name}を解除しました`,
                 );
               }
               this.sourceIds[itemSource].push(node.id);
               node.source = itemSource;
               this._writeLog(
-                `ノード${node.id}を${INFO_PROPS[itemSource]?.name ?? ""}発信源に設定しました`,
+                `ノード${node.id}を${SOURCE_PROPS[itemSource].name}に設定しました`,
               );
             }
             this._closeContextMenu();
@@ -1630,16 +1766,12 @@
           },
 
           // ===== シミュレーション制御 =====
-          handleStartOrAbort() {
+          handleStart() {
             if (this.isSpreading) {
-              this.isSpreading = false;
-              this.isPaused = false;
-              this._stepRequested = false;
-              this._softResetStatuses();
-              this._writeLog("■ 中断しました");
               return;
             }
-            this._softResetStatuses();
+            // this._softResetStatuses();
+            this.runStatus = "running";
             if (this.scenario === "basic") {
               const srcs =
                 this.sourceIds.basic.length > 0
@@ -1649,16 +1781,35 @@
             } else {
               this._startCorrectionScenario();
             }
+            // this._drawGraphFrame();
+          },
+          handleAbortOrReset() {
+            let msg;
+            if (this.isSpreading) {
+              msg = "■ 中断しました";
+            } else if (this.isFinished) {
+              msg = "リセットしました";
+            } else {
+              return;
+            }
+            this._softResetStatuses();
+            this._writeLog(msg);
           },
 
           handlePauseOrResume() {
-            if (!this.isSpreading) return;
-            this.isPaused = !this.isPaused;
-            this._writeLog(this.isPaused ? "⏸ 一時停止" : "▶ 再開");
+            if (this.runStatus === "running") {
+              this.runStatus = "paused";
+              this._writeLog("一時停止");
+            } else if ( this.isPaused) {
+              this.runStatus = "running";
+              this._writeLog("再開");
+            }
           },
 
           handleStep() {
-            if (this.isSpreading && this.isPaused) this._stepRequested = true;
+            if (this.isPaused) {
+              this._stepRequested = true;
+            }
           },
 
           _seededRandom(seed) {
@@ -1668,58 +1819,6 @@
               v = (v * 16807) % 2147483647;
               return (v - 1) / 2147483646;
             };
-          },
-
-          _buildNetworkBA(n, m, seed) {
-            const random = this._seededRandom(seed);
-            const mClamped = Math.min(m, n - 1);
-            const nodes = d3.range(n).map((id) => ({
-              id,
-              isInfluencer: false,
-              speedIndex: 2,
-              source: null,
-              isHighlighted: false,
-            }));
-            const links = [];
-            const seen = new Set();
-            const degrees = new Array(n).fill(0);
-
-            const addLink = (a, b) => {
-              if (a === b) return;
-              const key = a < b ? `${a}-${b}` : `${b}-${a}`;
-              if (seen.has(key)) return;
-              seen.add(key);
-              links.push({ source: a, target: b });
-              degrees[a]++;
-              degrees[b]++;
-            };
-
-            const initSize = Math.min(mClamped + 1, n);
-            for (let i = 0; i < initSize; i++)
-              for (let j = i + 1; j < initSize; j++) addLink(i, j);
-
-            for (let i = initSize; i < n; i++) {
-              const totalDeg = degrees.reduce((s, d) => s + d, 0) || 1;
-              const targets = new Set();
-              let attempts = 0;
-              while (
-                targets.size < Math.min(mClamped, i) &&
-                attempts < mClamped * 20
-              ) {
-                attempts++;
-                let r = random() * totalDeg,
-                  cumul = 0;
-                for (let j = 0; j < i; j++) {
-                  cumul += degrees[j];
-                  if (r <= cumul && !targets.has(j)) {
-                    targets.add(j);
-                    break;
-                  }
-                }
-              }
-              targets.forEach((t) => addLink(i, t));
-            }
-            return { nodes, links, degrees };
           },
 
           _randomSpeed() {
@@ -1734,46 +1833,31 @@
             return SPEED_DIST_WEIGHTS.length - 1;
           },
           _shuffleSpeeds() {
-            this._nodes.forEach((node) => {
+            _nodes.forEach((node) => {
               node.speedIndex = this._randomSpeed();
             });
           },
           _prevInfCnt: 0,
           _updateInfluencers() {
-            [...this._degrees.entries()]
-              .sort((a, b) => b[1] - a[1])
-              .splice(0, Math.max(this.influencerCount, this._prevInfCnt))
-              .forEach(([id], index) => {
-                const n = this._nodes[id];
-                if (index >= this.influencerCount) {
-                  n.isInfluencer = false;
-                  n.speedIndex = this._randomSpeed();
-                } else {
-                  n.isInfluencer = true;
-                  n.speedIndex = 0;
-                }
-              });
+            for (const [index, node] of _sortedNodes.entries()) {
+              if (index < this.influencerCount) {
+                node.isInfluencer = true;
+                node.speedIndex = 0;
+              } else if (index < this._prevInfCnt) {
+                node.isInfluencer = false;
+                node.speedIndex = this._randomSpeed();
+              } else {
+                break;
+              }
+            }
             this._prevInfCnt = this.influencerCount;
           },
           _buildNetwork() {
-            const { nodes, links, degrees } = this._buildNetworkBA(
+            generateBA(
               this.userCount,
               this.mParam,
-              this._seed,
+              this._seededRandom(this._seed),
             );
-            this._nodes = nodes;
-            this._links = links;
-            this._degrees = degrees;
-            this._adjacency = new Map(nodes.map((n) => [n.id, []]));
-            links.forEach((link) => {
-              const s =
-                typeof link.source === "object" ? link.source.id : link.source;
-              const t =
-                typeof link.target === "object" ? link.target.id : link.target;
-              this._adjacency.get(s)?.push(t);
-              this._adjacency.get(t)?.push(s);
-            });
-            this._statuses = new Map(nodes.map((n) => [n.id, "idle"]));
             this._activeLinkKeys.clear();
             this._clearAllSources();
             this._shuffleSpeeds();
@@ -1786,14 +1870,30 @@
             const height = svgEl.clientHeight || 600;
 
             // ノード間の距離を制御するパラメータ
-            const linkDist =
-              this.userCount > 300 ? 100 : this.userCount > 150 ? 60 : 40;
-            const repulsion =
-              this.userCount > 300 ? -120 : this.userCount > 150 ? -180 : -260;
-            // const linkDist =
-            //   this.userCount > 300 ? 55 : this.userCount > 150 ? 70 : 90;
-            const colRadius =
-              this.userCount > 300 ? 10 : this.userCount > 150 ? 14 : 18;
+            let linkDist = 50;
+            let repulsion = -100;
+            let colRadius = 20;
+            // if (this.userCount > 300) {
+            //   linkDist = 50;
+            //   repulsion = -100;
+            //   colRadius = 10;
+            // } else if (this.userCount > 200) {
+            //   linkDist = 60;
+            //   repulsion = -180;
+            //   colRadius = 14;
+            // } else if (this.userCount > 100) {
+            //   linkDist = 70;
+            //   repulsion = -180;
+            //   colRadius = 14;
+            // } else if (this.userCount > 50) {
+            //   linkDist = 50;
+            //   repulsion = -100;
+            //   colRadius = 10;
+            // } else {
+            //   linkDist = 100;
+            //   repulsion = -260;
+            //   colRadius = 18;
+            // }
 
             const svg = d3.select("#network");
             if (svg.node().__zoom) svg.node().__zoom = d3.zoomIdentity;
@@ -1808,9 +1908,16 @@
             this._zoomBehavior = zoomBehavior;
             this._zoomSvg = svg;
 
+            // d3だとホイールが効かない領域があるため、mainのイベントを委譲する
+            document.getElementById("main").addEventListener("wheel", e => {
+              if (!e.isTrusted) return;
+              e.preventDefault();
+              svgEl.dispatchEvent(new WheelEvent("wheel", e));
+            }, { passive: false });
+
             const jitter = this._seededRandom(this._seed + 999);
-            this._nodes.forEach((n) => {
-              if (n.x == null) {
+            _nodes.forEach((n) => {
+              if (n?.x === undefined) {
                 n.x = width / 2 + (jitter() - 0.5) * linkDist;
                 n.y = height / 2 + (jitter() - 0.5) * linkDist;
               }
@@ -1820,19 +1927,18 @@
               .append("g")
               .attr("class", "links")
               .selectAll("line")
-              .data(this._links)
+              .data(_links)
               .enter()
-              .append("line")
-              .attr(
-                "class",
-                (d) =>
-                  "link" + (this._isInfluencerLink(d) ? " influencer" : ""),
-              );
+              .append("line");
+              // .attr(
+              //   "class",
+              //   (d) => "link" + (this._isInfluencerLink(d) ? " influencer" : ""),
+              // );
 
             const nodeG = zoomGroup.append("g").attr("class", "nodes");
             const nodeEnter = nodeG
               .selectAll("g.node-g")
-              .data(this._nodes)
+              .data(_nodes)
               .enter()
               .append("g")
               .attr("class", "node-g");
@@ -1843,7 +1949,7 @@
               .attr("r", (d) => this._nodeRadius(d))
               .on("contextmenu", (event, d) => {
                 event.preventDefault();
-                this._updateContextMenu(event, this._nodes[d.id]);
+                this._updateContextMenu(event, _nodes[d.id]);
                 this._updateVisuals();
               })
               .call(
@@ -1881,14 +1987,14 @@
             if (this._simulation) this._simulation.stop();
 
             this._simulation = d3
-              .forceSimulation(this._nodes)
+              .forceSimulation(_nodes)
               .alphaDecay(0.04)
               .alphaMin(0.001)
               .velocityDecay(0.45)
               .force(
                 "link",
                 d3
-                  .forceLink(this._links)
+                  .forceLink(_links)
                   .id((d) => d.id)
                   .distance(linkDist)
                   .strength(0.3),
@@ -1943,14 +2049,12 @@
               if (!e.target.closest(".node-g")) this._closeContextMenu();
             });
           },
+          /**
+           * @param {*} event
+           * @param {Node} node
+           */
           _updateContextMenu(event, node) {
             node.isHighlighted = true;
-            // document.querySelectorAll(".speed-menu-item").forEach((btn) => {
-            //   btn.classList.toggle(
-            //     "speed-item-active",
-            //     parseInt(btn.dataset.speedIndex) === node.speedIndex,
-            //   );
-            // });
             const menuW = 175;
             const menuH = 240;
             let x = event.clientX;
@@ -1966,29 +2070,14 @@
               ? "👑 インフルエンサー"
               : "ユーザー";
             const title = `${nodeType} ID:${node.id} ${speedLabel}`;
-            function setOrReset(isIn) {
-              return isIn ? "を解除" : "に設定";
-            }
-            let sources;
-            if (this.scenario === "basic") {
-              sources = [
-                {
-                  label: `${INFO_PROPS.basic.icon} 発信源${setOrReset(node.source === "basic")}`,
-                  kind: "basic",
-                },
-              ];
-            } else {
-              sources = [
-                {
-                  label: `${INFO_PROPS.false.icon} ${INFO_PROPS.false.name}発信源${setOrReset(node.source === "false")}`,
-                  kind: "false",
-                },
-                {
-                  label: `${INFO_PROPS.true.icon} ${INFO_PROPS.true.name}発信源${setOrReset(node.source === "true")}`,
-                  kind: "true",
-                },
-              ];
-            }
+            const sources = this.availableSources.map((info) => {
+              const prop = SOURCE_PROPS[info.kind];
+              const msg = node.source === info.kind ? "を解除" : "に設定";
+              return {
+                kind: info.kind,
+                label: `${prop.icon} ${prop.name}${msg}`,
+              };
+            });
             this.contextMenu = {
               x, y,
               title,
@@ -2000,18 +2089,6 @@
             this.contextMenu.node.speedIndex = index;
             this.updateSpeedLabels();
             this._closeContextMenu();
-          },
-          _setupDrag() {
-            const mainEl = document.getElementById("main");
-            this._makeDraggable(
-              mainEl,
-              document.getElementById("livePanel"),
-              document.getElementById("panelDragHandle"),
-            );
-            this._makeDraggable(
-              mainEl,
-              document.getElementById("balanceFloat"),
-            );
           },
 
           _makeDraggable(parent, el, handle = null) {
@@ -2039,9 +2116,22 @@
             });
           },
 
+          /**
+           * @param {HTMLElement} mainEl
+           */
+          _setupDrag(mainEl) {
+            this._makeDraggable(
+              document.getElementById("main"),
+              document.getElementById("livePanel"),
+              document.getElementById("panelDragHandle"),
+            );
+            this._makeDraggable(
+              document.getElementById("main"),
+              document.getElementById("balanceFloat"),
+            );
+          },
           _setFloatingPanelPositions() {
-            const mainEl = document.getElementById("main");
-            const pr = mainEl.getBoundingClientRect();
+            const pr = document.getElementById("main").getBoundingClientRect();
             const lp = document.getElementById("livePanel");
             const lr = lp.getBoundingClientRect();
             lp.style.left = `${pr.width - lr.width - 14}px`;
@@ -2062,9 +2152,6 @@
 
           // ===== 拡散シミュレーション =====
           async _startBasicScenario(startIds) {
-            this.isSpreading = true;
-            this.isPaused = false;
-            this._stepRequested = false;
             this._startTime = performance.now();
             this._graphData = [];
             this._time50 = null;
@@ -2072,21 +2159,29 @@
             this.ui = { ...this.ui, time50: "--", time90: "--", done: "--" };
 
             const prob = this.basicSpreadProbability;
+            /**
+             * @type {{
+             *   id: number,
+             *   from?: number,
+             *   at: number,
+             * }[]}
+             */
             const queue = [];
             const visited = new Set();
 
             startIds.forEach((sid) => {
               if (visited.has(sid)) return;
               visited.add(sid);
-              queue.push({ id: sid, from: null, at: 0 });
-              this._applyInfo(sid, "info", true);
+              queue.push({ id: sid, from: undefined, at: 0 });
+              const n = _nodes[sid];
+              const oldStat = this._applyInfo(n, "info", true);
+              this._updateStat(oldStat, n.status);
             });
 
             this._writeLog(
               `${startIds.length}件の発信源から情報拡散を開始（伝達確率${Math.round(prob * 100)}%）`,
             );
             this._updateVisuals();
-            this._updateMetrics();
             this._recordSnapshot(0);
             let currentTime = 0;
 
@@ -2100,33 +2195,31 @@
                     currentTime + STEP_TIME_MS / this.speedMultiplier;
                   if (event.at > stepEnd) {
                     queue.unshift(event);
-                    this.isPaused = true;
+                    this.runStatus = "paused";
                     continue;
                   }
                 }
+                if (!this.isSpreading) throw new Error("Aborted");
                 const delay = Math.max(0, event.at - currentTime);
                 if (!this.isPaused) await this._wait(delay);
                 currentTime = event.at;
-                if (!this.isSpreading) throw new Error("Aborted");
-                const node = this._nodes.find((n) => n.id === event.id);
-                if (!node) continue;
-                if (event.from !== null) {
-                  this._applyInfo(event.id, "info", false);
+                const node = _nodes[event.id];
+                if (event.from !== undefined) {
+                  const oldStat = this._applyInfo(node, "info", false);
                   this._activeLinkKeys.add(
                     this._edgeKey(event.from, event.id) + "-info",
                   );
+                  this._updateStat(oldStat, node.status);
                 }
                 this._pulseNode(event.id);
                 this._updateVisuals();
-                this._updateMetrics();
                 this._checkMilestones();
                 this._recordSnapshot(currentTime / BASE_SPREAD_DELAY);
-                (this._adjacency.get(event.id) || []).forEach((nid) => {
+                node.neighbors.forEach((nid) => {
                   if (visited.has(nid)) return;
                   if (prob < 1.0 && Math.random() > prob) return;
                   visited.add(nid);
-                  const nNode = this._nodes.find((n) => n.id === nid);
-                  const d = this._effectiveDelay(nNode || node);
+                  const d = this._effectiveDelay(_nodes[nid].speedIndex);
                   queue.push({ id: nid, from: event.id, at: currentTime + d });
                 });
               }
@@ -2137,18 +2230,17 @@
           },
 
           async _startCorrectionScenario() {
+            /** @type { number[] } */
             const falseIds =
               this.sourceIds.false.length > 0
                 ? [...this.sourceIds.false]
                 : [this._getDefaultStartNodeId()];
+            /** @type { number[] } */
             const trueIds =
               this.sourceIds.true.length > 0
                 ? [...this.sourceIds.true]
                 : [this._getCorrectionSourceId(falseIds[0])];
 
-            this.isSpreading = true;
-            this.isPaused = false;
-            this._stepRequested = false;
             this._startTime = performance.now();
             this._graphData = [];
             this._time50 = null;
@@ -2156,8 +2248,16 @@
             this.ui = { ...this.ui, time50: "--", time90: "--", done: "--" };
 
             const correctionStartDelay =
-              (this.correctionDelayHours * 2 * BASE_SPREAD_DELAY) /
+              (this.correctionDelaySec * 2 * BASE_SPREAD_DELAY) /
               this.speedMultiplier;
+            /**
+             * @type { {
+             *   id: number,
+             *   from?: number,
+             *   at: number,
+             *   type: "info" | "false" | "corrected"
+             * }[] }
+             */
             const queue = [];
             const visitedByType = { false: new Set(), corrected: new Set() };
 
@@ -2166,7 +2266,7 @@
               visitedByType.false.add(id);
               queue.push({
                 id,
-                from: null,
+                from: undefined,
                 at: 0,
                 type: "false",
                 isSource: true,
@@ -2177,7 +2277,7 @@
               visitedByType.corrected.add(id);
               queue.push({
                 id,
-                from: null,
+                from: undefined,
                 at: correctionStartDelay,
                 type: "corrected",
                 isSource: true,
@@ -2185,8 +2285,8 @@
             });
 
             this._writeLog(
-              `${INFO_PROPS.false.name}発信源${falseIds.length}件、` +
-                `${INFO_PROPS.true.name}発信源${trueIds.length}件（${this.correctionDelayHours.toFixed(1)}時間後）`,
+              `${SOURCE_PROPS.false.name}${falseIds.length}件、` +
+                `${SOURCE_PROPS.true.name}${trueIds.length}件（${this.correctionDelaySec.toFixed(1)}秒後）`,
             );
             let currentTime = 0;
             this._recordSnapshot(0);
@@ -2201,44 +2301,32 @@
                     currentTime + STEP_TIME_MS / this.speedMultiplier;
                   if (event.at > stepEnd) {
                     queue.unshift(event);
-                    this.isPaused = true;
+                    this.runStatus = "paused";
                     continue;
                   }
                 }
+                if (!this.isSpreading) throw new Error("Aborted");
                 const delay = Math.max(0, event.at - currentTime);
                 if (!this.isPaused) await this._wait(delay);
                 currentTime = event.at;
-                if (!this.isSpreading) throw new Error("Aborted");
-                const node = this._nodes.find((n) => n.id === event.id);
-                if (!node) continue;
-                const applied = this._applyInfo(
-                  event.id,
-                  event.type,
-                  event.isSource,
-                );
-                if (!applied) continue;
-                if (event.from !== null)
+                const node = _nodes[event.id];
+                const oldStat = this._applyInfo(node, event.type, event.isSource);
+                if (node.status === oldStat) continue;
+                if (event.from !== undefined)
                   this._activeLinkKeys.add(
                     this._edgeKey(event.from, event.id) + "-" + event.type,
                   );
                 this._pulseNode(event.id);
                 this._updateVisuals();
-                this._updateMetrics();
                 this._checkMilestones();
+                this._updateStat(oldStat, node.status);
                 this._recordSnapshot(currentTime / BASE_SPREAD_DELAY);
-                const d = this._effectiveDelay(node);
-                (this._adjacency.get(event.id) || []).forEach((nid) => {
+                node.neighbors.forEach((nid) => {
+                  const target = _nodes[nid];
                   if (visitedByType[event.type].has(nid)) return;
-                  if (
-                    event.type === "false" &&
-                    this._statuses.get(nid) !== "idle"
-                  )
+                  if (event.type === "false" && target.status !== "idle")
                     return;
-                  if (
-                    event.type === "corrected" &&
-                    this._statuses.get(nid) !== "idle" &&
-                    this._statuses.get(nid) !== "false"
-                  )
+                  if (event.type === "corrected" && target.status !== "idle" && target.status !== "false")
                     return;
                   const threshold =
                     event.type === "false"
@@ -2246,6 +2334,7 @@
                       : this.correctionSpreadProbability;
                   if (Math.random() > threshold) return;
                   visitedByType[event.type].add(nid);
+                  const d = this._effectiveDelay(target.speedIndex);
                   queue.push({
                     id: nid,
                     from: event.id,
@@ -2261,31 +2350,24 @@
             }
           },
 
-          _applyInfo(id, type, isSource = false, random = Math.random) {
-            const cur = this._statuses.get(id);
-            if (type === "info") {
-              if (cur !== "idle" && !isSource) return false;
-              this._statuses.set(id, "info");
-              return true;
-            }
-            if (type === "false") {
-              if (cur !== "idle" && !isSource) return false;
-              this._statuses.set(id, "false");
-              return true;
-            }
-            // souce-true & idle->true もcorrected扱いになっている
-            if (type === "corrected") {
-              if (cur === "false") {
-                if (!isSource && random() > this.correctionChance) return false;
-                this._statuses.set(id, "corrected");
-                return true;
-              }
-              if (cur === "idle") {
-                this._statuses.set(id, "corrected");
-                return true;
+          /**
+           * @param {Node} node
+           * @param {Status} type
+           */
+          _applyInfo(node, type, isSource = false) {
+            const cur = node.status;
+            if (type === "info" && (cur === "idle" || isSource)) {
+              node.status = "info";
+            } else if (type === "false" && (cur === "idle" || isSource)) {
+              node.status = "false";
+            } else if (type === "corrected") { // souce-true & idle->true もcorrected扱いになっている
+              if (cur === "false" && (isSource || Math.random() <= this.correctionChance)) {
+                node.status = "corrected";
+              } else if (cur === "idle") {
+                node.status = "corrected";
               }
             }
-            return isSource;
+            return cur;
           },
 
           async _interceptLifecycle() {
@@ -2304,14 +2386,15 @@
           _wait(ms) {
             return new Promise((r) => setTimeout(r, ms));
           },
-          _effectiveDelay(node) {
-            return SPEED_PATTERNS[node.speedIndex].ms / this.speedMultiplier;
+          /**
+           * @param { number } speedIndex
+           */
+          _effectiveDelay(speedIndex) {
+            return SPEED_PATTERNS[speedIndex].ms / this.speedMultiplier;
           },
 
           _checkMilestones() {
-            const reached = Array.from(this._statuses.values()).filter(
-              (v) => v !== "idle",
-            ).length;
+            const reached = _nodes.filter((n) => n.status !== "idle").length;
             const elapsed = (performance.now() - this._startTime) / 1000;
             if (!this._time50 && reached >= this.userCount * 0.5) {
               this._time50 = elapsed;
@@ -2323,19 +2406,33 @@
             }
           },
 
-          _updateMetrics() {
-            const vals = Array.from(this._statuses.values());
+          /**
+           * @param {Status} oldStat
+           * @param {Status} newStat
+           */
+          _updateStat(oldStat, newStat) {
+            stat[oldStat]--;
+            stat[newStat]++;
+            this._updateUiMetrics();
+          },
+
+          _resetStat() {
+            stat.idle = this.userCount;
+            stat.false = 0;
+            stat.corrected = 0;
+            stat.info = 0;
+            this._resetUiMetrics();
+          },
+
+          _updateUiMetrics() {
             const total = this.userCount;
-            const reached = vals.filter((v) => v !== "idle").length;
-            const falseCount = vals.filter((v) => v === "false").length;
-            const trueCount = vals.filter((v) => v === "corrected").length;
-            const fp = Math.round((falseCount / total) * 100);
-            const tp = Math.round((trueCount / total) * 100);
+            const fp = Math.round((stat.false / total) * 100);
+            const tp = Math.round((stat.corrected / total) * 100);
             this.ui = {
               ...this.ui,
-              reached: Math.round((reached / total) * 100) + "%",
-              falseCount: falseCount + "人",
-              trueCount: trueCount + "人",
+              reached: Math.round((1.0 - stat.idle / total) * 100) + "%",
+              falseCount: stat.false + "人",
+              trueCount: stat.corrected + "人",
               barFalsePct: fp,
               barTruePct: tp,
               barIdlePct: Math.max(0, 100 - fp - tp),
@@ -2367,32 +2464,32 @@
               done: dur.toFixed(2) + "秒",
             };
             this._writeLog(`🏁 ${label}：計${dur.toFixed(2)}秒`);
-            this.isSpreading = false;
-            this.isPaused = false;
+            this.runStatus = "finished";
             this._updateVisuals();
-            this._updateMetrics();
           },
 
           _softResetStatuses() {
-            this._statuses = new Map(this._nodes.map((n) => [n.id, "idle"]));
+            this.runStatus = "none";
+            this._stepRequested = false;
             this._activeLinkKeys.clear();
             this._graphData = [];
-            this._resetUiMetrics();
+            _nodes.forEach((n) => n.status = "idle");
+            this._resetStat();
             this._updateVisuals();
             this._drawGraph();
           },
 
+          _prevData: null,
+          /**
+           * @param {number} step
+           */
           _recordSnapshot(step) {
-            const vals = Array.from(this._statuses.values());
             this._graphData.push({
               step,
-              info: vals.filter((v) => v === "info").length,
-              false: vals.filter((v) => v === "false").length,
-              true: vals.filter((v) => v === "corrected").length,
+              ...stat
             });
             this._drawGraph();
           },
-
           _drawGraph() {
             const gSvg = d3.select("#graphSvg");
             const container = document.getElementById("graphSvg");
@@ -2406,10 +2503,10 @@
             const g = gSvg
               .append("g")
               .attr("transform", `translate(${m.left},${m.top})`);
-            const maxStep = d3.max(this._graphData, (d) => d.step) || 1;
+            const maxStep = this._graphData.at(-1).step || 1;
             const xS = d3
               .scaleLinear()
-              .domain([0, Math.max(10, maxStep)])
+              .domain([0, maxStep])
               .range([0, cw]);
             const yS = d3
               .scaleLinear()
@@ -2462,7 +2559,7 @@
                   d3
                     .line()
                     .x((d) => xS(d.step))
-                    .y((d) => yS(d.true)),
+                    .y((d) => yS(d.corrected)),
                 );
             }
           },
@@ -2478,18 +2575,11 @@
            * @param {int} id
            */
           _nodeClass(id) {
-            const node = this._nodes[id];
-            const classes = ["node", this._statuses.get(node.id) || "idle"];
+            const node = _nodes[id];
+            const classes = ["node", node.status];
             if (node.isInfluencer) classes.push("influencer");
-            if (this.scenario === "correction" && !this.isSpreading) {
-              if (node.source !== null) {
-                classes.push(`source-${node.source}`);
-              }
-            } else if (node.source === "basic") {
-              classes.push("source");
-            }
-            if (node.isHighlighted)
-              classes.push("highlighted");
+            if (node.source !== null) classes.push(`source-${node.source}`);
+            if (node.isHighlighted) classes.push("highlighted");
             return classes.join(" ");
           },
 
@@ -2512,20 +2602,20 @@
               const s = typeof d.source === "object" ? d.source.id : d.source;
               const t = typeof d.target === "object" ? d.target.id : d.target;
               const key = this._edgeKey(s, t);
-              const cls = ["link"];
-              if (this._isInfluencerLink(d)) cls.push("influencer");
-              if (this._activeLinkKeys.has(key + "-info")) cls.push("info");
-              if (this._activeLinkKeys.has(key + "-false")) cls.push("false");
+              const classes = ["link"];
+              // if (this._isInfluencerLink(d)) classes.push("influencer");
+              if (this._activeLinkKeys.has(key + "-info")) classes.push("info");
+              if (this._activeLinkKeys.has(key + "-false")) classes.push("false");
               if (this._activeLinkKeys.has(key + "-corrected"))
-                cls.push("corrected");
-              return cls.join(" ");
+                classes.push("corrected");
+              return classes.join(" ");
             });
             this.updateSpeedLabels();
           },
 
           _pulseNode(id) {
             if (!this._nodeSelection) return;
-            const node = this._nodes.find((n) => n.id === id);
+            const node = _nodes.find((n) => n.id === id);
             const r = node ? this._nodeRadius(node) : 6;
             this._nodeSelection
               .filter((d) => d.id === id)
@@ -2537,13 +2627,13 @@
               .attr("r", r);
           },
 
-          _isInfluencerLink(d) {
-            const s = typeof d.source === "object" ? d.source.id : d.source;
-            const t = typeof d.target === "object" ? d.target.id : d.target;
-            const sN = this._nodes.find((n) => n.id === s);
-            const tN = this._nodes.find((n) => n.id === t);
-            return (sN && sN.isInfluencer) || (tN && tN.isInfluencer);
-          },
+          // _isInfluencerLink(d) {
+          //   const s = typeof d.source === "object" ? d.source.id : d.source;
+          //   const t = typeof d.target === "object" ? d.target.id : d.target;
+          //   const sN = _nodes[s];
+          //   const tN = _nodes[t];
+          //   return sN.isInfluencer || tN.isInfluencer;
+          // },
 
           _edgeKey(a, b) {
             return a < b ? `${a}-${b}` : `${b}-${a}`;
@@ -2574,7 +2664,7 @@
            * @param {int[]} excludeIds
            */
           _newSource(excludeIds) {
-            const l = this._nodes.length - excludeIds.length;
+            const l = _nodes.length - excludeIds.length;
             let i = Math.floor(Math.random() * l);
             for (const id of excludeIds) {
               if (i >= id) {
@@ -2584,44 +2674,29 @@
               }
             }
             return i;
-            // const pool = this._nodes.filter(
-            //   (n) => !set.has(n.id) && (!excludeSet || !excludeSet.has(n.id)),
-            // );
-            // if (pool.length === 0) return;
-            // set.add(pool[Math.floor(Math.random() * pool.length)].id);
           },
 
           _getDefaultStartNodeId() {
-            const n = this._nodes.find((n) => !n.isInfluencer);
-            return n ? n.id : 0;
+            const n = _nodes.find((n) => !n.isInfluencer);
+            return n?.id ?? 0;
           },
 
+          /**
+           * @param { number } falseId
+           */
           _getCorrectionSourceId(falseId) {
-            const infs = this._nodes.filter(
+            const infs = _nodes.filter(
               (n) => n.isInfluencer && n.id !== falseId,
             );
             if (infs.length > 0) return infs[0].id;
-            return (
-              this._nodes.reduce((best, n) => {
-                if (n.id === falseId) return best;
-                const d = this._adjacency.get(n.id)?.length || 0;
-                const bd =
-                  best === null ? -1 : this._adjacency.get(best)?.length || 0;
-                return d > bd ? n.id : best;
-              }, null) ?? 0
-            );
+            const n = _nodes.reduce((best, n) => {
+              if (n.id === falseId) return best;
+              const d = n.degree || 0;
+              const bd = best?.degree || -1;
+              return d > bd ? n : best;
+            }, null);
+            return n?.id ?? 0;
           },
-
-          // _createRunRandom(a, b) {
-          //   this._runCounter++;
-          //   const seed =
-          //     this._seed * 97 +
-          //     this.userCount * 31 +
-          //     a * 13 +
-          //     b * 17 +
-          //     this._runCounter * 7919;
-          //   return this._seededRandom(seed);
-          // },
 
           _writeLog(text) {
             const logEl = document.getElementById("log");
