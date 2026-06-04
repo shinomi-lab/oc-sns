@@ -814,10 +814,10 @@
                 class="slider"
                 :disabled="isSpreading"
                 x-model.number="userCount"
+                @change="regenerateNetwork()"
               />
-              <!--@change="onUserCountChange()"-->
             </div>
-            <div class="item-field">
+            <!--<div class="item-field">
               <div class="slider-label-row">
                 <span>繋がりのレベル</span>
                 <span class="slider-value" x-text="mParam"></span>
@@ -832,9 +832,8 @@
                 :disabled="isSpreading"
                 x-model.number="mParam"
               />
-              <!--@change="onMParamChange()"-->
-            </div>
-            <button
+            </div>-->
+            <!--<button
               type="button"
               class="btn btn-secondary"
               id="regenerateButton"
@@ -843,7 +842,7 @@
               @click="regenerateNetwork()"
             >
               ネットワークを再生成
-            </button>
+            </button>-->
           </div>
 
           <div class="section-title">シナリオ</div>
@@ -903,11 +902,8 @@
                       <span>情報の伝わりやすさ</span>
                       <span
                         class="warn-icon"
-                        :class="{ visible: basicSpreadPct === 100 }"
-                        >!<span class="tooltip"
-                          >全員に必ず情報が届きます</span
-                        ></span
-                      >
+                        :class="{ visible: basicSpreadPct === 100 }">!</span>
+                        <span class="tooltip" >全員に必ず情報が届きます</span>
                     </div>
                     <span
                       class="slider-value"
@@ -1193,8 +1189,7 @@
               <!-- 開始ボタン -->
               <button
                 type="button"
-                class="btn"
-                class="btn-primary"
+                class="btn btn-primary"
                 @click="handleStart()"
               >
                 <span>▶ 開始</span>
@@ -1202,8 +1197,7 @@
               <!-- 中断ボタン -->
               <button
                 type="button"
-                class="btn"
-                :class="btn-abort"
+                class="btn btn-abort"
                 @click="handleAbort()"
               >
                 <span>■ 中断</span>
@@ -1443,7 +1437,7 @@
           // ===== Alpine リアクティブ状態（UI表示に関わるもの） =====
           scenario: "basic",
           userCount: 250,
-          mParam: 2,
+          mParam: 1,
           influencerCount: 2,
           // スライダーはpct/slider変数をモデルとし、確率値はinput時に同期
           basicSpreadPct: 50,
@@ -1474,6 +1468,7 @@
             barIdlePct: 100,
             barTruePct: 0,
           },
+          contextMenu: null,
 
           // ===== Alpine非リアクティブ状態（D3・シミュレーションが管理） =====
           // ※ Alpine x-dataの中に置くが、変更時にAlpineが再描画しないよう
@@ -1538,7 +1533,6 @@
             this.scenario = scenario;
             this._clearAllSources();
             this._softResetStatuses();
-            // this._updateLegend();
             // balanceFloatの位置をシナリオ切り替え後に再設定
             this.$nextTick(() => this._setFloatingPanelPositions());
             this._writeLog(
@@ -1549,12 +1543,6 @@
           },
 
           // ===== ネットワーク操作 =====
-          // onUserCountChange() {
-          //   this.regenerateNetwork();
-          // },
-          // onMParamChange() {
-          //   this.regenerateNetwork();
-          // },
           regenerateNetwork() {
             if (this.isSpreading) return;
             this._seed += 1;
@@ -1796,6 +1784,17 @@
             const svgEl = document.getElementById("network");
             const width = svgEl.clientWidth || 800;
             const height = svgEl.clientHeight || 600;
+
+            // ノード間の距離を制御するパラメータ
+            const linkDist =
+              this.userCount > 300 ? 100 : this.userCount > 150 ? 60 : 40;
+            const repulsion =
+              this.userCount > 300 ? -120 : this.userCount > 150 ? -180 : -260;
+            // const linkDist =
+            //   this.userCount > 300 ? 55 : this.userCount > 150 ? 70 : 90;
+            const colRadius =
+              this.userCount > 300 ? 10 : this.userCount > 150 ? 14 : 18;
+
             const svg = d3.select("#network");
             if (svg.node().__zoom) svg.node().__zoom = d3.zoomIdentity;
             svg.selectAll("*").remove();
@@ -1812,8 +1811,8 @@
             const jitter = this._seededRandom(this._seed + 999);
             this._nodes.forEach((n) => {
               if (n.x == null) {
-                n.x = width / 2 + (jitter() - 0.5) * 80;
-                n.y = height / 2 + (jitter() - 0.5) * 80;
+                n.x = width / 2 + (jitter() - 0.5) * linkDist;
+                n.y = height / 2 + (jitter() - 0.5) * linkDist;
               }
             });
 
@@ -1880,12 +1879,6 @@
               .style("fill", (d) => SPEED_PATTERNS[d.speedIndex].color);
 
             if (this._simulation) this._simulation.stop();
-            const repulsion =
-              this.userCount > 300 ? -120 : this.userCount > 150 ? -180 : -260;
-            const linkDist =
-              this.userCount > 300 ? 55 : this.userCount > 150 ? 70 : 90;
-            const colRadius =
-              this.userCount > 300 ? 10 : this.userCount > 150 ? 14 : 18;
 
             this._simulation = d3
               .forceSimulation(this._nodes)
@@ -1936,7 +1929,7 @@
 
             this._updateVisuals();
           },
-          contextMenu: null,
+
           _closeContextMenu() {
             if (this.contextMenu) {
               this.contextMenu.node.isHighlighted = false;
@@ -1952,12 +1945,12 @@
           },
           _updateContextMenu(event, node) {
             node.isHighlighted = true;
-            document.querySelectorAll(".speed-menu-item").forEach((btn) => {
-              btn.classList.toggle(
-                "speed-item-active",
-                parseInt(btn.dataset.speedIndex) === node.speedIndex,
-              );
-            });
+            // document.querySelectorAll(".speed-menu-item").forEach((btn) => {
+            //   btn.classList.toggle(
+            //     "speed-item-active",
+            //     parseInt(btn.dataset.speedIndex) === node.speedIndex,
+            //   );
+            // });
             const menuW = 175;
             const menuH = 240;
             let x = event.clientX;
@@ -2476,8 +2469,9 @@
 
           // ===== ビジュアル =====
           _nodeRadius(d) {
-            const base = this.userCount > 200 ? 4.5 : 6;
-            return d.isInfluencer ? base * 2.2 : base;
+            // const base = this.userCount > 200 ? 4.5 : 8;
+            const base = 8;
+            return d.isInfluencer ? base * 1.8 : base;
           },
 
           /**
