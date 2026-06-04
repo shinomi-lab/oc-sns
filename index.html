@@ -1,0 +1,2644 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SNS情報拡散シミュレーター</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --panel: #334155;
+        --line: #475569;
+        --line-soft: #64748b;
+        --text: #f8fafc;
+        --muted: #cbd5e1;
+        --subtle: #94a3b8;
+        --accent: #22d3ee;
+        --accent-dark: #0891b2;
+        --info: #22d3ee;
+        --false: #ef4444;
+        --corrected: #22c55e;
+        --idle: #475569;
+        --influencer: #a855f7;
+        --source: #facc15;
+        --shadow:
+          0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
+          sans-serif;
+        overflow: hidden;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .sidebar {
+        background: var(--surface);
+        border-right: 1px solid var(--line);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+        z-index: 10;
+      }
+      header h1 {
+        margin: 0;
+        color: var(--accent);
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+      }
+      header .subtitle {
+        margin: 3px 0 0;
+        color: var(--subtle);
+        font-size: 11px;
+      }
+      .section-title {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--subtle);
+        margin: 4px 0 2px;
+        font-weight: 700;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        padding-bottom: 4px;
+      }
+      .config-panel {
+        background: rgba(15, 23, 42, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+      .item-field {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .item-field span {
+        font-size: 11px;
+      }
+      .slider-label-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .slider-label-left {
+        font-weight: 600;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .slider-value {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .warn-icon {
+        display: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #f59e0b;
+        color: #000;
+        font-size: 9px;
+        font-weight: 900;
+        align-items: center;
+        justify-content: center;
+        cursor: default;
+        position: relative;
+      }
+      .warn-icon.visible {
+        display: flex;
+      }
+      .warn-icon .tooltip {
+        display: none;
+        position: absolute;
+        bottom: 18px;
+        right: 0;
+        background: #1e293b;
+        border: 1px solid #f59e0b;
+        border-radius: 5px;
+        padding: 4px 7px;
+        font-size: 10px;
+        color: var(--text);
+        white-space: nowrap;
+        z-index: 100;
+        font-weight: 600;
+      }
+      .warn-icon:hover .tooltip {
+        display: block;
+      }
+      .slider {
+        width: 100%;
+        height: 5px;
+        background: #0f172a;
+        border-radius: 3px;
+        outline: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+      }
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      .slider:disabled {
+        opacity: 0.2;
+        cursor: not-allowed;
+      }
+      /* タブ */
+      .tab-content {
+        /*border: 1px solid rgba(255, 255, 255, 0.06);*/
+        border-radius: 0 0 4px 4px;
+        border: 1px solid var(--line-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        padding: 10px;
+      }
+      .segmented {
+        display: flex;
+        flex-direction: row;
+        /*margin-bottom: 2px;*/
+      }
+      .segmented button {
+        flex: 1;
+        border: 1px solid var(--line-soft);
+        border-bottom: 0;
+        border-radius: 4px 4px 0 0;
+        background: #0f172a;
+        color: var(--muted);
+        padding: 7px 10px;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 150ms ease;
+        position: relative;
+      }
+      .segmented button[aria-pressed="true"] {
+        background: var(--accent-dark);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .actions-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 5px;
+        margin-top: 2px;
+      }
+      .btn {
+        min-height: 32px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 150ms ease;
+        font-family: inherit;
+      }
+      .btn-primary {
+        background: var(--accent-dark);
+        color: #fff;
+      }
+      .btn-primary:hover:not(:disabled) {
+        background: #06738d;
+      }
+      .btn-abort {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: var(--false);
+        color: #fca5a5;
+      }
+      .btn-abort:hover:not(:disabled) {
+        background: rgba(239, 68, 68, 0.35);
+      }
+      .btn-secondary {
+        background: #0f172a;
+        border-color: var(--line);
+        color: var(--muted);
+      }
+      .btn-secondary:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .btn-step {
+        background: rgba(34, 211, 238, 0.1);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn-step:hover:not(:disabled) {
+        background: rgba(34, 211, 238, 0.2);
+      }
+      .btn:disabled {
+        opacity: 0.2;
+        cursor: not-allowed;
+      }
+      /* 発信源コントロール */
+      .source-control-row {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+      .source-badge {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 10px;
+        background: rgba(250, 204, 21, 0.15);
+        border: 1px solid rgba(250, 204, 21, 0.4);
+        color: var(--source);
+        white-space: nowrap;
+      }
+      .source-badge.false-badge {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #fca5a5;
+      }
+      .source-badge.true-badge {
+        background: rgba(34, 197, 94, 0.12);
+        border-color: rgba(34, 197, 94, 0.4);
+        color: #86efac;
+      }
+      .source-btn {
+        min-height: 22px;
+        padding: 2px 7px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: #0f172a;
+        color: var(--muted);
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        transition: all 150ms;
+      }
+      .source-btn:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.07);
+        color: #fff;
+      }
+      .source-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      .warn-text {
+        font-size: 10px;
+        color: #f59e0b;
+        margin-top: 2px;
+        display: none;
+      }
+      .warn-text.visible {
+        display: block;
+      }
+      /* 統計 */
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+      }
+      .metric-card {
+        background: rgba(15, 23, 42, 0.4);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 5px 8px;
+      }
+      .metric-card strong {
+        display: block;
+        font-size: 14px;
+        color: #fff;
+      }
+      .metric-card span {
+        display: block;
+        font-size: 10px;
+        color: var(--subtle);
+        margin-top: 1px;
+      }
+      /* ログ */
+      .log-panel {
+        flex: 1;
+        min-height: 60px;
+        max-height: 120px;
+        background: #0f172a;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 5px 7px;
+        font-size: 10px;
+        color: var(--muted);
+        overflow-y: auto;
+        line-height: 1.5;
+      }
+      .log-panel div + div {
+        margin-top: 2px;
+      }
+      /* メインエリア */
+      .main-area {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+          circle at 50% 50%,
+          #1a2744 0%,
+          #0f172a 100%
+        );
+      }
+      svg#network {
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: grab;
+      }
+      svg#network:active {
+        cursor: grabbing;
+      }
+      /* D3要素 */
+      .link {
+        stroke: #64748b;
+        stroke-opacity: 0.25;
+        stroke-width: 1;
+      }
+      .link.false {
+        stroke: var(--false);
+        stroke-opacity: 0.8;
+        stroke-width: 2;
+      }
+      .link.info {
+        stroke: var(--info);
+        stroke-opacity: 0.8;
+        stroke-width: 2;
+      }
+      .link.corrected {
+        stroke: var(--corrected);
+        stroke-opacity: 0.8;
+        stroke-width: 2;
+      }
+      .link.influencer {
+        stroke: var(--source);
+        stroke-opacity: 0.3;
+      }
+      .node {
+        stroke: #0f172a;
+        stroke-width: 1.5;
+        cursor: pointer;
+      }
+      .node.idle {
+        fill: var(--idle);
+      }
+      .node.info {
+        fill: var(--info);
+      }
+      .node.false {
+        fill: var(--false);
+      }
+      .node.corrected {
+        fill: var(--corrected);
+      }
+      .node.influencer {
+        stroke: var(--influencer);
+        stroke-width: 2.5;
+      }
+      .node.source {
+        stroke: var(--source);
+        stroke-width: 3;
+      }
+      .node.source-false {
+        stroke: var(--false);
+        stroke-width: 3;
+      }
+      .node.source-true {
+        stroke: var(--corrected);
+        stroke-width: 3;
+      }
+      .node.highlighted {
+        stroke: #fff !important;
+        stroke-width: 3 !important;
+      }
+      .speed-label {
+        font-size: 9px;
+        fill: rgba(255, 255, 255, 0.7);
+        pointer-events: none;
+        font-family: monospace;
+        font-weight: 700;
+        user-select: none;
+      }
+      /* ズームUI */
+      .zoom-controls {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 3px;
+        backdrop-filter: blur(4px);
+      }
+      .zoom-btn {
+        width: 26px;
+        height: 26px;
+        background: transparent;
+        border: 0;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .zoom-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      /* 凡例 */
+      .legend-overlay {
+        position: absolute;
+        left: 14px;
+        bottom: 14px;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 8px 10px;
+        backdrop-filter: blur(4px);
+        pointer-events: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .legend-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 600;
+      }
+      .swatch {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .swatch.idle {
+        background: var(--idle);
+      }
+      .swatch.influencer {
+        background: var(--influencer);
+        border: 1.5px solid #fff;
+      }
+      .swatch.false {
+        background: var(--false);
+      }
+      .swatch.corrected {
+        background: var(--corrected);
+      }
+      .swatch.info {
+        background: var(--info);
+      }
+      .swatch.source {
+        background: var(--source);
+        border: 1.5px solid #fff;
+      }
+      .swatch.source-false {
+        background: var(--false);
+        border: 2px solid #fff;
+        border-radius: 2px;
+      }
+      .swatch.source-true {
+        background: var(--corrected);
+        border: 2px solid #fff;
+        border-radius: 2px;
+      }
+      .legend-divider {
+        border: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        margin: 0;
+      }
+      .legend-speed-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .legend-speed-label {
+        font-size: 10px;
+        color: var(--subtle);
+        font-weight: 600;
+      }
+      .speed-items {
+        display: flex;
+        gap: 8px;
+      }
+      .speed-item {
+        font-size: 10px;
+        color: var(--muted);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+      .speed-arrow {
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .legend-toggle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .toggle-checkbox {
+        width: 12px;
+        height: 12px;
+        accent-color: var(--accent);
+        cursor: pointer;
+      }
+      .legend-toggle-label {
+        font-size: 10px;
+        color: var(--subtle);
+        font-weight: 600;
+      }
+      /* バランスメータ */
+      .balance-float {
+        position: absolute;
+        background: rgba(15, 23, 42, 0.82);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 14px;
+        backdrop-filter: blur(6px);
+        visibility: hidden;
+        cursor: grab;
+        z-index: 5;
+        width: 300px;
+      }
+      .balance-float.active {
+        visibility: visible;
+      }
+      .balance-float:active {
+        cursor: grabbing;
+      }
+      .balance-bar {
+        display: flex;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        background: rgba(71, 85, 105, 0.3);
+      }
+      .bar-false {
+        background: var(--false);
+        transition: width 200ms ease;
+      }
+      .bar-idle {
+        background: rgba(100, 116, 139, 0.25);
+        transition: width 200ms ease;
+      }
+      .bar-true {
+        background: var(--corrected);
+        transition: width 200ms ease;
+      }
+      .balance-nums {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      /* ライブインフォパネル */
+      .live-panel {
+        position: absolute;
+        width: 460px;
+        min-width: 280px;
+        background: rgba(23, 33, 50, 0.88);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: column;
+        z-index: 5;
+        overflow: auto;
+      }
+      .live-panel.minimized {
+        overflow: hidden;
+      }
+      .panel-header {
+        background: rgba(15, 23, 42, 0.6);
+        padding: 7px 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 11px;
+        font-weight: 700;
+        cursor: grab;
+        flex-shrink: 0;
+        border-radius: 8px 8px 0 0;
+      }
+      .panel-header:active {
+        cursor: grabbing;
+      }
+      .panel-controls {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .opacity-label {
+        font-size: 9px;
+        color: var(--subtle);
+      }
+      .opacity-slider {
+        width: 50px;
+        height: 4px;
+        accent-color: var(--accent);
+        cursor: pointer;
+      }
+      .panel-toggle-btn {
+        background: transparent;
+        border: 0;
+        color: var(--subtle);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .panel-toggle-btn:hover {
+        color: #fff;
+      }
+      .panel-body {
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+        min-height: 120px;
+      }
+      .panel-body svg {
+        flex: 1;
+        min-height: 80px;
+      }
+      .minimized .panel-body {
+        display: none;
+      }
+      /* コンテキストメニュー */
+      .node-context-menu {
+        position: fixed;
+        background: #1e293b;
+        border: 1px solid var(--line-soft);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        padding: 5px;
+        z-index: 200;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 170px;
+      }
+      .menu-header {
+        font-size: 10px;
+        color: var(--subtle);
+        font-weight: 800;
+        padding: 3px 7px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 3px;
+      }
+      .menu-section-label {
+        font-size: 9px;
+        color: var(--subtle);
+        padding: 3px 7px 1px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .menu-item {
+        background: transparent;
+        border: 0;
+        color: var(--muted);
+        text-align: left;
+        padding: 5px 7px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: inherit;
+        width: 100%;
+      }
+      .menu-item:hover {
+        background: var(--accent-dark);
+        color: #fff;
+      }
+      .menu-item.speed-item-active {
+        color: var(--accent);
+      }
+      .menu-separator {
+        border: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.07);
+        margin: 3px 0;
+      }
+      .axis line,
+      .axis path {
+        stroke: rgba(255, 255, 255, 0.08);
+      }
+      /* Alpine cloak */
+      [x-cloak] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Alpine.jsのx-dataルートは<body>に置く。
+      D3が管理するSVG領域（#network, #graphSvg）はAlpineのテンプレート外として扱い、
+      Alpine側からは触らない。凡例(#legendItems)のみJS側でinnerHTMLを更新する（D3と同じ理由）。
+    -->
+    <div x-data="simulator()" x-init="init()">
+      <div class="app">
+        <aside class="sidebar">
+          <header>
+            <h1>SNS情報拡散シミュレーター</h1>
+            <p class="subtitle">情報がネットワーク上でどう広がるかを可視化</p>
+          </header>
+
+          <div class="section-title">ネットワーク</div>
+          <div class="config-panel">
+            <div class="item-field">
+              <div class="slider-label-row">
+                <span>ユーザー数</span>
+                <span class="slider-value" x-text="userCount + '人'"></span>
+              </div>
+              <input
+                type="range"
+                id="userCountInput"
+                min="20"
+                max="600"
+                value="250"
+                class="slider"
+                :disabled="isSpreading"
+                x-model.number="userCount"
+              />
+              <!--@change="onUserCountChange()"-->
+            </div>
+            <div class="item-field">
+              <div class="slider-label-row">
+                <span>繋がりのレベル</span>
+                <span class="slider-value" x-text="mParam"></span>
+              </div>
+              <input
+                type="range"
+                id="mInput"
+                min="1"
+                max="10"
+                value="2"
+                class="slider"
+                :disabled="isSpreading"
+                x-model.number="mParam"
+              />
+              <!--@change="onMParamChange()"-->
+            </div>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="regenerateButton"
+              style="width: 100%; font-weight: 800; font-size: 11px"
+              :disabled="isSpreading"
+              @click="regenerateNetwork()"
+            >
+              ネットワークを再生成
+            </button>
+          </div>
+
+          <div class="section-title">シナリオ</div>
+          <div class="config-panel">
+            <div class="item-field">
+              <div class="slider-label-row">
+                <span>インフルエンサー人数</span>
+                <span
+                  class="slider-value"
+                  x-text="influencerCount + '人'"
+                ></span>
+              </div>
+              <input
+                type="range"
+                id="influencerCountInput"
+                min="1"
+                :max="Math.min(20, userCount)"
+                value="2"
+                class="slider"
+                :disabled="isSpreading"
+                x-model.number="influencerCount"
+                @change="onInfluencerCountChange()"
+              />
+            </div>
+
+            <div>
+              <div class="segmented" role="group">
+                <button
+                  type="button"
+                  id="basicScenarioTab"
+                  :aria-pressed="String(scenario === 'basic')"
+                  :disabled="isSpreading"
+                  @click="setScenario('basic')"
+                >
+                  通常の情報拡散
+                </button>
+                <button
+                  type="button"
+                  id="correctionScenarioTab"
+                  :aria-pressed="String(scenario === 'correction')"
+                  :disabled="isSpreading"
+                  @click="setScenario('correction')"
+                >
+                  デマ vs 訂正情報
+                </button>
+              </div>
+
+              <!-- 基本シナリオ -->
+              <div
+                id="basicParamsForm"
+                class="tab-content"
+                x-show="scenario === 'basic'"
+              >
+                <div class="item-field">
+                  <div class="slider-label-row">
+                    <div class="slider-label-left">
+                      <span>情報の伝わりやすさ</span>
+                      <span
+                        class="warn-icon"
+                        :class="{ visible: basicSpreadPct === 100 }"
+                        >!<span class="tooltip"
+                          >全員に必ず情報が届きます</span
+                        ></span
+                      >
+                    </div>
+                    <span
+                      class="slider-value"
+                      x-text="basicSpreadPct + '%'"
+                    ></span>
+                  </div>
+                  <input
+                    type="range"
+                    id="basicSpreadInput"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value="50"
+                    class="slider"
+                    :disabled="isSpreading"
+                    x-model.number="basicSpreadPct"
+                    @input="basicSpreadProbability = basicSpreadPct / 100"
+                  />
+                </div>
+                <!-- 基本シナリオ発信源 -->
+                <div class="item-field">
+                  <span>発信源</span>
+                  <div class="source-control-row">
+                    <span
+                      class="source-badge"
+                      x-text="sourceIds.basic.length + ' 件'"
+                    ></span>
+                    <button
+                      type="button"
+                      class="source-btn"
+                      :disabled="isSpreading"
+                      @click="shuffleSource('basic')"
+                      title="ランダムに1件追加"
+                    >
+                      ⇌ ランダム
+                    </button>
+                    <button
+                      type="button"
+                      class="source-btn"
+                      :disabled="isSpreading"
+                      @click="clearSource('basic')"
+                      title="すべて解除"
+                    >
+                      ✕ 解除
+                    </button>
+                  </div>
+                  <div
+                    class="warn-text"
+                    :class="{ visible: sourceIds.basic.length > Math.ceil(userCount * 0.05) }"
+                  >
+                    ⚠ 発信源が多すぎます（ユーザー数の5%超）
+                  </div>
+                </div>
+              </div>
+
+              <!-- 対立シナリオ -->
+              <div
+                id="correctionParamsForm"
+                class="tab-content"
+                x-show="scenario === 'correction'"
+              >
+                <div class="item-field">
+                  <div class="slider-label-row">
+                    <div class="slider-label-left">
+                      <span>デマの広がりやすさ</span>
+                      <span
+                        class="warn-icon"
+                        :class="{ visible: misinfoPct === 100 }"
+                        >!<span class="tooltip"
+                          >すべてのデマが広がります</span
+                        ></span
+                      >
+                    </div>
+                    <span class="slider-value" x-text="misinfoPct + '%'"></span>
+                  </div>
+                  <input
+                    type="range"
+                    id="misinfoProbabilityInput"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value="80"
+                    class="slider"
+                    :disabled="isSpreading"
+                    x-model.number="misinfoPct"
+                    @input="misinfoProbability = misinfoPct / 100"
+                  />
+                </div>
+                <div class="item-field">
+                  <div class="slider-label-row">
+                    <div class="slider-label-left">
+                      <span>訂正情報の広がりやすさ</span>
+                      <span
+                        class="warn-icon"
+                        :class="{ visible: correctionSpreadPct === 100 }"
+                        >!<span class="tooltip"
+                          >すべての訂正情報が広がります</span
+                        ></span
+                      >
+                    </div>
+                    <span
+                      class="slider-value"
+                      x-text="correctionSpreadPct + '%'"
+                    ></span>
+                  </div>
+                  <input
+                    type="range"
+                    id="correctionSpreadInput"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value="60"
+                    class="slider"
+                    :disabled="isSpreading"
+                    x-model.number="correctionSpreadPct"
+                    @input="correctionSpreadProbability = correctionSpreadPct / 100"
+                  />
+                </div>
+                <div class="item-field">
+                  <div class="slider-label-row">
+                    <div class="slider-label-left">
+                      <span>デマ信者が訂正を受け入れる確率</span>
+                      <span
+                        class="warn-icon"
+                        :class="{ visible: correctionChancePct === 100 }"
+                        >!<span class="tooltip"
+                          >デマを信じた全員が訂正を受け入れます</span
+                        ></span
+                      >
+                    </div>
+                    <span
+                      class="slider-value"
+                      x-text="correctionChancePct + '%'"
+                    ></span>
+                  </div>
+                  <input
+                    type="range"
+                    id="correctionChanceInput"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value="40"
+                    class="slider"
+                    :disabled="isSpreading"
+                    x-model.number="correctionChancePct"
+                    @input="correctionChance = correctionChancePct / 100"
+                  />
+                </div>
+                <div class="item-field">
+                  <div class="slider-label-row">
+                    <span>訂正情報の発信タイミング</span>
+                    <span
+                      class="slider-value"
+                      x-text="(correctionDelaySlider / 2).toFixed(1) + ' 時間後'"
+                    ></span>
+                  </div>
+                  <input
+                    type="range"
+                    id="correctionDelayInput"
+                    min="0"
+                    max="24"
+                    step="1"
+                    value="6"
+                    class="slider"
+                    :disabled="isSpreading"
+                    x-model.number="correctionDelaySlider"
+                    @input="correctionDelayHours = correctionDelaySlider / 2"
+                  />
+                </div>
+                <!-- デマ発信源 -->
+                <div class="item-field">
+                  <div
+                    style="
+                      font-size: 10px;
+                      color: #fca5a5;
+                      margin-bottom: 4px;
+                      font-weight: 600;
+                    "
+                  >
+                    デマ発信源
+                  </div>
+                  <div class="source-control-row">
+                    <span
+                      class="source-badge false-badge"
+                      x-text="sourceIds.false.length + ' 件'"
+                    ></span>
+                    <button
+                      type="button"
+                      class="source-btn"
+                      :disabled="isSpreading"
+                      @click="shuffleSource('false')"
+                      title="ランダムに1件追加"
+                    >
+                      ⇌ ランダム
+                    </button>
+                    <button
+                      type="button"
+                      class="source-btn"
+                      :disabled="isSpreading"
+                      @click="clearSource('false')"
+                      title="すべて解除"
+                    >
+                      ✕ 解除
+                    </button>
+                  </div>
+                  <div
+                    class="warn-text"
+                    :class="{ visible: sourceIds.false.length > Math.ceil(userCount * 0.05) }"
+                  >
+                    ⚠ 発信源が多すぎます（ユーザー数の5%超）
+                  </div>
+                </div>
+                <!-- 訂正発信源 -->
+                <div class="item-field">
+                  <div
+                    style="
+                      font-size: 10px;
+                      color: #86efac;
+                      margin-bottom: 4px;
+                      font-weight: 600;
+                    "
+                  >
+                    訂正情報発信源
+                  </div>
+                  <div class="source-control-row">
+                    <span
+                      class="source-badge true-badge"
+                      x-text="sourceIds.true.length + ' 件'"
+                    ></span>
+                    <button
+                      type="button"
+                      class="source-btn"
+                      :disabled="isSpreading"
+                      @click="shuffleSource('true')"
+                      title="ランダムに1件追加"
+                    >
+                      ⇌ ランダム
+                    </button>
+                    <button
+                      type="button"
+                      class="source-btn"
+                      :disabled="isSpreading"
+                      @click="clearSource('true')"
+                      title="すべて解除"
+                    >
+                      ✕ 解除
+                    </button>
+                  </div>
+                  <div
+                    class="warn-text"
+                    :class="{ visible: sourceIds.true.length > Math.ceil(userCount * 0.05) }"
+                  >
+                    ⚠ 発信源が多すぎます（ユーザー数の5%超）
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">シミュレーション</div>
+          <div class="config-panel">
+            <div class="item-field">
+              <div class="slider-label-row">
+                <span>再生速度</span>
+                <span
+                  class="slider-value"
+                  x-text="'×' + speedMultiplier.toFixed(2)"
+                ></span>
+              </div>
+              <input
+                type="range"
+                id="speedInput"
+                min="25"
+                max="400"
+                step="25"
+                value="100"
+                class="slider"
+                x-model.number="speedSlider"
+                @input="speedMultiplier = speedSlider / 100"
+              />
+            </div>
+            <div class="actions-row">
+              <!-- 開始ボタン -->
+              <button
+                type="button"
+                class="btn"
+                class="btn-primary"
+                @click="handleStart()"
+              >
+                <span>▶ 開始</span>
+              </button>
+              <!-- 中断ボタン -->
+              <button
+                type="button"
+                class="btn"
+                :class="btn-abort"
+                @click="handleAbort()"
+              >
+                <span>■ 中断</span>
+              </button>
+              <!-- 一時停止/再開ボタン -->
+              <button
+                type="button"
+                class="btn btn-secondary"
+                :disabled="!isSpreading"
+                @click="handlePauseOrResume()"
+              >
+                <span x-text="isPaused ? '▶ 再開' : '⏸ 一時停止'"></span>
+              </button>
+              <!-- ステップボタン -->
+              <button
+                type="button"
+                class="btn btn-step"
+                :disabled="!isSpreading || !isPaused"
+                @click="handleStep()"
+              >
+                +1秒
+              </button>
+            </div>
+          </div>
+
+          <div class="section-title">統計</div>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <strong x-text="ui.reached"></strong><span>情報が届いた割合</span>
+            </div>
+            <div class="metric-card">
+              <strong x-text="ui.falseCount"></strong
+              ><span>デマに接した人数</span>
+            </div>
+            <div class="metric-card">
+              <strong x-text="ui.trueCount"></strong
+              ><span>訂正情報を受け取った人数</span>
+            </div>
+            <div class="metric-card">
+              <strong x-text="ui.time50"></strong
+              ><span>半数に届くまでの時間</span>
+            </div>
+            <div class="metric-card">
+              <strong x-text="ui.time90"></strong
+              ><span>ほぼ全員に届くまでの時間</span>
+            </div>
+            <div class="metric-card">
+              <strong x-text="ui.done"></strong
+              ><span>シミュレーション時間</span>
+            </div>
+          </div>
+
+          <div class="section-title">ログ</div>
+          <div class="log-panel" id="log"></div>
+        </aside>
+        <main class="main-area" id="main">
+          <svg id="network"></svg>
+
+          <!-- バランスメータ -->
+          <div
+            class="balance-float"
+            id="balanceFloat"
+            :class="{ active: scenario === 'correction' }"
+          >
+            <div class="balance-bar">
+              <div
+                class="bar-false"
+                :style="'width:' + ui.barFalsePct + '%'"
+              ></div>
+              <div
+                class="bar-idle"
+                :style="'width:' + ui.barIdlePct + '%'"
+              ></div>
+              <div
+                class="bar-true"
+                :style="'width:' + ui.barTruePct + '%'"
+              ></div>
+            </div>
+            <div class="balance-nums">
+              <span
+                style="color: var(--false)"
+                x-text="'デマ ' + ui.barFalsePct + '%'"
+              ></span>
+              <span
+                style="color: var(--corrected)"
+                x-text="'訂正情報 ' + ui.barTruePct + '%'"
+              ></span>
+            </div>
+          </div>
+
+          <!-- ズームコントロール -->
+          <div class="zoom-controls">
+            <button class="zoom-btn" id="zoomInBtn">+</button>
+            <button class="zoom-btn" id="zoomOutBtn">−</button>
+            <button class="zoom-btn" id="zoomResetBtn">⌂</button>
+          </div>
+
+          <!-- 凡例 -->
+          <div class="legend-overlay" id="legendOverlay">
+            <div class="legend-items" id="legendItems">
+              <template x-for="(item, index) in legends()" :key="index">
+                <div class="legend-item">
+                  <span :class="`swatch ${item.kind}`"></span><span x-text="item.label"></span>
+                </div>
+              </template>
+            </div>
+            <hr class="legend-divider" />
+            <div
+              class="legend-speed-row"
+              id="legendSpeedRow"
+              x-show="showSpeedIcons"
+            >
+              <span class="legend-speed-label">反応速度：</span>
+              <div class="speed-items">
+                <template x-for="(item, index) in speedPatterns()" :key="index">
+                  <div class="speed-item">
+                    <span
+                      class="speed-arrow"
+                      :style="{color: item.color}"
+                      x-text="item.arrow"
+                    ></span
+                    ><span x-text="item.label"></span>
+                  </div>
+                </template>
+              </div>
+            </div>
+            <label class="legend-toggle">
+              <input
+                type="checkbox"
+                class="toggle-checkbox"
+                id="showSpeedToggle"
+                x-model="showSpeedIcons"
+                @change="updateSpeedLabels()"
+              />
+              <span class="legend-toggle-label">反応速度を表示</span>
+            </label>
+          </div>
+
+          <!-- ライブインフォパネル -->
+          <div class="live-panel" id="livePanel">
+            <div class="panel-header" id="panelDragHandle">
+              <span>📊 シミュレーション状況</span>
+              <div class="panel-controls">
+                <span class="opacity-label">透明度</span>
+                <input
+                  type="range"
+                  class="opacity-slider"
+                  id="panelOpacityInput"
+                  min="15"
+                  max="100"
+                  value="88"
+                  @input="$el.closest('.live-panel').style.background = 'rgba(23,33,50,' + $el.value/100 + ')'"
+                />
+                <button
+                  class="panel-toggle-btn"
+                  @click="panelMinimized = !panelMinimized"
+                  x-text="panelMinimized ? '+' : '−'"
+                ></button>
+              </div>
+            </div>
+            <div class="panel-body" x-show="!panelMinimized">
+              <svg id="graphSvg"></svg>
+            </div>
+          </div>
+        </main>
+      </div>
+      <template x-if="contextMenu">
+        <div
+          class="node-context-menu"
+          :style="{left: `${contextMenu.x}px`, top: `${contextMenu.y}px`}"
+        >
+          <div class="menu-header" id="menuTitle" x-text="contextMenu.title">ノード情報</div>
+          <template x-for="(item, index) in contextMenu.sources" :key="index">
+            <button
+              class="menu-item"
+              @click="toggleSource(item.kind)"
+              x-text="item.label"
+            ></button>
+          </template>
+          <hr class="menu-separator" />
+          <div class="menu-section-label">反応速度</div>
+          <template x-for="(p, index) in speedPatterns()" :key="index">
+            <button class="menu-item speed-menu-item" @click="changeSpeed(index)">
+              <span
+                class="speed-arrow"
+                :style="{color: p.color}"
+                x-text="p.arrow"
+              ></span
+              ><span x-text="p.label"></span>
+            </button>
+          </template>
+        </div>
+      </template>
+
+    <script>
+      const ALL_LEGENDS = {
+        idle: { kind: "idle", label: "未接触" },
+        influencer : { kind: "influencer", label: "インフルエンサー" },
+        source: { kind: "source", label: "発信源" },
+        info: { kind: "info", label: "情報を受け取った" },
+        idle: { kind: "idle", label: "未接触" },
+        influencer: { kind: "influencer", label: "インフルエンサー" },
+        sourceFalse: { kind: "source-false", label: "デマ発信源" },
+        sourceTrue: { kind: "source-true", label: "訂正情報発信源" },
+        false: { kind: "false", label: "デマを信じた" },
+        corrected: { kind: "corrected", label: "訂正情報を信じた" },
+      };
+      const SPEED_PATTERNS = [
+        { label: "最速", arrow: "↑", ms: 160, color: "#f472b6" },
+        { label: "早い", arrow: "↗", ms: 240, color: "#fb923c" },
+        { label: "普通", arrow: "→", ms: 320, color: "#facc15" },
+        { label: "遅い", arrow: "↘", ms: 400, color: "#60a5fa" },
+        { label: "最遅", arrow: "↓", ms: 500, color: "#818cf8" },
+      ];
+      const SPEED_DIST_WEIGHTS = [0.35, 0.28, 0.2, 0.11, 0.06];
+      const BASE_SPREAD_DELAY = 500;
+      const STEP_TIME_MS = 1000;
+
+      const INFO_PROPS = {
+        basic: {
+          icon: "🏁",
+        },
+        false: {
+          icon: "🔴",
+          name: "デマ",
+        },
+        true: {
+          icon: "🟢",
+          name: "訂正",
+          longName: "訂正情報",
+        },
+      };
+
+      // Alpine コンポーネント定義
+      function simulator() {
+        return {
+          // ===== Alpine リアクティブ状態（UI表示に関わるもの） =====
+          scenario: "basic",
+          userCount: 250,
+          mParam: 2,
+          influencerCount: 2,
+          // スライダーはpct/slider変数をモデルとし、確率値はinput時に同期
+          basicSpreadPct: 50,
+          basicSpreadProbability: 0.5,
+          misinfoPct: 80,
+          misinfoProbability: 0.8,
+          correctionSpreadPct: 60,
+          correctionSpreadProbability: 0.6,
+          correctionChancePct: 40,
+          correctionChance: 0.4,
+          correctionDelaySlider: 6, // スライダー生値（0〜24）
+          correctionDelayHours: 3.0, // 実際の時間（/ 2）
+          speedSlider: 100,
+          speedMultiplier: 1.0,
+          showSpeedIcons: true,
+          isSpreading: false,
+          isPaused: false,
+          panelMinimized: false,
+          // UI表示用まとめオブジェクト（統計・バランスメータ）
+          ui: {
+            reached: "0%",
+            falseCount: "0人",
+            trueCount: "0人",
+            time50: "--",
+            time90: "--",
+            done: "--",
+            barFalsePct: 0,
+            barIdlePct: 100,
+            barTruePct: 0,
+          },
+
+          // ===== Alpine非リアクティブ状態（D3・シミュレーションが管理） =====
+          // ※ Alpine x-dataの中に置くが、変更時にAlpineが再描画しないよう
+          //   SetやMapはalpineのリアクティブ対象外（プロパティとして参照はできる）
+          _nodes: [],
+          _links: [],
+          _degrees: [],
+          _adjacency: new Map(),
+          _statuses: new Map(),
+          sourceIds: {
+            "basic": [],
+            "false": [],
+            "true": [],
+          },
+          _activeLinkKeys: new Set(),
+          _simulation: null,
+          _nodeSelection: null,
+          _linkSelection: null,
+          _labelSelection: null,
+          _startTime: 0,
+          _time50: null,
+          _time90: null,
+          _graphData: [],
+          _seed: 42,
+          _stepRequested: false,
+          // _runCounter: 0,
+
+          // ===== Alpine init =====
+          init() {
+            this._buildNetwork();
+            this._renderNetwork();
+            this._setFloatingPanelPositions();
+            this._resetUiMetrics();
+            this._setupContextMenu();
+            this._setupDrag();
+            this._setupResizeObserver();
+            // this._updateLegend();
+            window.addEventListener("resize", () => {
+              if (!this.isSpreading) this._renderNetwork();
+            });
+            this._writeLog(
+              "シミュレーターを起動しました。ノードを右クリックで操作できます。",
+            );
+          },
+
+          speedLabels() {
+            return SPEED_PATTERNS.map((p) => ({
+              label: `${p.arrow} ${p.label}`,
+            }));
+          },
+          speedPatterns() {
+            return SPEED_PATTERNS;
+          },
+          _speedLabel(index) {
+            const p = SPEED_PATTERNS[index];
+            return `${p.arrow} ${p.label}`;
+          },
+
+          // ===== シナリオ切り替え =====
+          setScenario(scenario) {
+            if (this.isSpreading) return;
+            this.scenario = scenario;
+            this._clearAllSources();
+            this._softResetStatuses();
+            // this._updateLegend();
+            // balanceFloatの位置をシナリオ切り替え後に再設定
+            this.$nextTick(() => this._setFloatingPanelPositions());
+            this._writeLog(
+              scenario === "basic"
+                ? "通常の情報拡散シナリオ"
+                : `${INFO_PROPS.false.name} vs ${INFO_PROPS.true.longName} シナリオ`,
+            );
+          },
+
+          // ===== ネットワーク操作 =====
+          // onUserCountChange() {
+          //   this.regenerateNetwork();
+          // },
+          // onMParamChange() {
+          //   this.regenerateNetwork();
+          // },
+          regenerateNetwork() {
+            if (this.isSpreading) return;
+            this._seed += 1;
+            this._nodes.forEach((n) => {
+              n.x = undefined;
+              n.y = undefined;
+              n.vx = 0;
+              n.vy = 0;
+            });
+            this._buildNetwork();
+            this._renderNetwork();
+            this._resetUiMetrics();
+            this._graphData = [];
+            this._drawGraph();
+            this._writeLog("ネットワークを再生成しました");
+          },
+
+          // ===== 発信源操作 =====
+          _clearSource(kind) {
+            this.sourceIds[kind].forEach((id) => {
+              this._nodes[id].source = null;
+            });
+            this.sourceIds[kind] = [];
+          },
+          _clearAllSources() {
+            this._clearSource("basic");
+            this._clearSource("false");
+            this._clearSource("true");
+          },
+          clearSource(kind) {
+            this._clearSource(kind);
+            this._updateVisuals();
+            this._writeLog(`${INFO_PROPS[kind]?.name ?? ""}発信源をリセットしました`);
+          },
+          shuffleSource(kind) {
+            let id;
+            switch (kind) {
+              case "basic":
+                id = this._newSource([...this.sourceIds.basic]);
+                break;
+              case "false":
+                id = this._newSource([...this.sourceIds.false, ...this.sourceIds.true]);
+                break;
+              case "true":
+                id = this._newSource([...this.sourceIds.true, ...this.sourceIds.false]);
+                break;
+              default:
+                return;
+            }
+            this.sourceIds[kind].push(id);
+            this._nodes[id].source = kind;
+            this._updateVisuals();
+            this._writeLog(
+              `${INFO_PROPS[kind]?.name ?? ""}発信源をランダムに1件追加しました`,
+            );
+          },
+          toggleSource(itemSource) {
+            const node = this.contextMenu.node;
+            if (node.source === itemSource) {
+              this.sourceIds[itemSource] = this.sourceIds[itemSource].filter((id) => id === node.id);
+              node.source = null;
+              this._writeLog(
+                `ノード${node.id}の${INFO_PROPS[itemSource]?.name ?? ""}発信源を解除しました`,
+              );
+            } else {
+              if (node.source !== null) {
+                this.sourceIds[node.source] = this.sourceIds[node.source].filter((id) => id === node.id);
+                node.source = null;
+                this._writeLog(
+                  `ノード${node.id}の${INFO_PROPS[node.source]?.name ?? ""}発信源を解除しました`,
+                );
+              }
+              this.sourceIds[itemSource].push(node.id);
+              node.source = itemSource;
+              this._writeLog(
+                `ノード${node.id}を${INFO_PROPS[itemSource]?.name ?? ""}発信源に設定しました`,
+              );
+            }
+            this._closeContextMenu();
+          },
+
+          onInfluencerCountChange() {
+            this._updateInfluencers();
+            this._updateVisuals();
+          },
+
+          // ===== シミュレーション制御 =====
+          handleStartOrAbort() {
+            if (this.isSpreading) {
+              this.isSpreading = false;
+              this.isPaused = false;
+              this._stepRequested = false;
+              this._softResetStatuses();
+              this._writeLog("■ 中断しました");
+              return;
+            }
+            this._softResetStatuses();
+            if (this.scenario === "basic") {
+              const srcs =
+                this.sourceIds.basic.length > 0
+                  ? [...this.sourceIds.basic]
+                  : [this._getDefaultStartNodeId()];
+              this._startBasicScenario(srcs);
+            } else {
+              this._startCorrectionScenario();
+            }
+          },
+
+          handlePauseOrResume() {
+            if (!this.isSpreading) return;
+            this.isPaused = !this.isPaused;
+            this._writeLog(this.isPaused ? "⏸ 一時停止" : "▶ 再開");
+          },
+
+          handleStep() {
+            if (this.isSpreading && this.isPaused) this._stepRequested = true;
+          },
+
+          _seededRandom(seed) {
+            let v = seed % 2147483647;
+            if (v <= 0) v += 2147483646;
+            return () => {
+              v = (v * 16807) % 2147483647;
+              return (v - 1) / 2147483646;
+            };
+          },
+
+          _buildNetworkBA(n, m, seed) {
+            const random = this._seededRandom(seed);
+            const mClamped = Math.min(m, n - 1);
+            const nodes = d3.range(n).map((id) => ({
+              id,
+              isInfluencer: false,
+              speedIndex: 2,
+              source: null,
+              isHighlighted: false,
+            }));
+            const links = [];
+            const seen = new Set();
+            const degrees = new Array(n).fill(0);
+
+            const addLink = (a, b) => {
+              if (a === b) return;
+              const key = a < b ? `${a}-${b}` : `${b}-${a}`;
+              if (seen.has(key)) return;
+              seen.add(key);
+              links.push({ source: a, target: b });
+              degrees[a]++;
+              degrees[b]++;
+            };
+
+            const initSize = Math.min(mClamped + 1, n);
+            for (let i = 0; i < initSize; i++)
+              for (let j = i + 1; j < initSize; j++) addLink(i, j);
+
+            for (let i = initSize; i < n; i++) {
+              const totalDeg = degrees.reduce((s, d) => s + d, 0) || 1;
+              const targets = new Set();
+              let attempts = 0;
+              while (
+                targets.size < Math.min(mClamped, i) &&
+                attempts < mClamped * 20
+              ) {
+                attempts++;
+                let r = random() * totalDeg,
+                  cumul = 0;
+                for (let j = 0; j < i; j++) {
+                  cumul += degrees[j];
+                  if (r <= cumul && !targets.has(j)) {
+                    targets.add(j);
+                    break;
+                  }
+                }
+              }
+              targets.forEach((t) => addLink(i, t));
+            }
+            return { nodes, links, degrees };
+          },
+
+          _randomSpeed() {
+            const r = Math.random();
+            let cumul = 0;
+            for (let i = 0; i < SPEED_DIST_WEIGHTS.length; i++) {
+              cumul += SPEED_DIST_WEIGHTS[i];
+              if (r <= cumul) {
+                return i;
+              }
+            }
+            return SPEED_DIST_WEIGHTS.length - 1;
+          },
+          _shuffleSpeeds() {
+            this._nodes.forEach((node) => {
+              node.speedIndex = this._randomSpeed();
+            });
+          },
+          _prevInfCnt: 0,
+          _updateInfluencers() {
+            [...this._degrees.entries()]
+              .sort((a, b) => b[1] - a[1])
+              .splice(0, Math.max(this.influencerCount, this._prevInfCnt))
+              .forEach(([id], index) => {
+                const n = this._nodes[id];
+                if (index >= this.influencerCount) {
+                  n.isInfluencer = false;
+                  n.speedIndex = this._randomSpeed();
+                } else {
+                  n.isInfluencer = true;
+                  n.speedIndex = 0;
+                }
+              });
+            this._prevInfCnt = this.influencerCount;
+          },
+          _buildNetwork() {
+            const { nodes, links, degrees } = this._buildNetworkBA(
+              this.userCount,
+              this.mParam,
+              this._seed,
+            );
+            this._nodes = nodes;
+            this._links = links;
+            this._degrees = degrees;
+            this._adjacency = new Map(nodes.map((n) => [n.id, []]));
+            links.forEach((link) => {
+              const s =
+                typeof link.source === "object" ? link.source.id : link.source;
+              const t =
+                typeof link.target === "object" ? link.target.id : link.target;
+              this._adjacency.get(s)?.push(t);
+              this._adjacency.get(t)?.push(s);
+            });
+            this._statuses = new Map(nodes.map((n) => [n.id, "idle"]));
+            this._activeLinkKeys.clear();
+            this._clearAllSources();
+            this._shuffleSpeeds();
+            this._updateInfluencers();
+          },
+
+          _renderNetwork() {
+            const svgEl = document.getElementById("network");
+            const width = svgEl.clientWidth || 800;
+            const height = svgEl.clientHeight || 600;
+            const svg = d3.select("#network");
+            if (svg.node().__zoom) svg.node().__zoom = d3.zoomIdentity;
+            svg.selectAll("*").remove();
+
+            const zoomGroup = svg.append("g").attr("class", "zoom-container");
+            const zoomBehavior = d3
+              .zoom()
+              .scaleExtent([0.1, 10])
+              .on("zoom", (e) => zoomGroup.attr("transform", e.transform));
+            svg.call(zoomBehavior);
+            this._zoomBehavior = zoomBehavior;
+            this._zoomSvg = svg;
+
+            const jitter = this._seededRandom(this._seed + 999);
+            this._nodes.forEach((n) => {
+              if (n.x == null) {
+                n.x = width / 2 + (jitter() - 0.5) * 80;
+                n.y = height / 2 + (jitter() - 0.5) * 80;
+              }
+            });
+
+            this._linkSelection = zoomGroup
+              .append("g")
+              .attr("class", "links")
+              .selectAll("line")
+              .data(this._links)
+              .enter()
+              .append("line")
+              .attr(
+                "class",
+                (d) =>
+                  "link" + (this._isInfluencerLink(d) ? " influencer" : ""),
+              );
+
+            const nodeG = zoomGroup.append("g").attr("class", "nodes");
+            const nodeEnter = nodeG
+              .selectAll("g.node-g")
+              .data(this._nodes)
+              .enter()
+              .append("g")
+              .attr("class", "node-g");
+
+            this._nodeSelection = nodeEnter
+              .append("circle")
+              .attr("class", (d) => this._nodeClass(d.id))
+              .attr("r", (d) => this._nodeRadius(d))
+              .on("contextmenu", (event, d) => {
+                event.preventDefault();
+                this._updateContextMenu(event, this._nodes[d.id]);
+                this._updateVisuals();
+              })
+              .call(
+                d3
+                  .drag()
+                  .on("start", (event, d) => {
+                    if (!event.active && this._simulation)
+                      this._simulation.alphaTarget(0.2).restart();
+                    d.fx = d.x;
+                    d.fy = d.y;
+                  })
+                  .on("drag", (event, d) => {
+                    if (this.isSpreading) return;
+                    d.fx = event.x;
+                    d.fy = event.y;
+                  })
+                  .on("end", (event, d) => {
+                    if (!event.active && this._simulation)
+                      this._simulation.alphaTarget(0);
+                    d.fx = null;
+                    d.fy = null;
+                  }),
+              );
+
+            this._labelSelection = nodeEnter
+              .append("text")
+              .attr("class", "speed-label")
+              .attr("text-anchor", "middle")
+              .attr("dy", (d) => -(this._nodeRadius(d) + 3))
+              .text((d) =>
+                this.showSpeedIcons ? SPEED_PATTERNS[d.speedIndex].arrow : "",
+              )
+              .style("fill", (d) => SPEED_PATTERNS[d.speedIndex].color);
+
+            if (this._simulation) this._simulation.stop();
+            const repulsion =
+              this.userCount > 300 ? -120 : this.userCount > 150 ? -180 : -260;
+            const linkDist =
+              this.userCount > 300 ? 55 : this.userCount > 150 ? 70 : 90;
+            const colRadius =
+              this.userCount > 300 ? 10 : this.userCount > 150 ? 14 : 18;
+
+            this._simulation = d3
+              .forceSimulation(this._nodes)
+              .alphaDecay(0.04)
+              .alphaMin(0.001)
+              .velocityDecay(0.45)
+              .force(
+                "link",
+                d3
+                  .forceLink(this._links)
+                  .id((d) => d.id)
+                  .distance(linkDist)
+                  .strength(0.3),
+              )
+              .force(
+                "charge",
+                d3.forceManyBody().strength(repulsion).distanceMax(400),
+              )
+              .force(
+                "center",
+                d3.forceCenter(width / 2, height / 2).strength(0.05),
+              )
+              .force(
+                "collision",
+                d3.forceCollide().radius(colRadius).strength(0.8).iterations(2),
+              )
+              .on("tick", () => {
+                this._linkSelection
+                  .attr("x1", (d) => d.source.x)
+                  .attr("y1", (d) => d.source.y)
+                  .attr("x2", (d) => d.target.x)
+                  .attr("y2", (d) => d.target.y);
+                nodeEnter.attr("transform", (d) => `translate(${d.x},${d.y})`);
+              });
+
+            d3.select("#zoomInBtn").on("click", () =>
+              svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.3),
+            );
+            d3.select("#zoomOutBtn").on("click", () =>
+              svg.transition().duration(200).call(zoomBehavior.scaleBy, 0.7),
+            );
+            d3.select("#zoomResetBtn").on("click", () =>
+              svg
+                .transition()
+                .duration(300)
+                .call(zoomBehavior.transform, d3.zoomIdentity),
+            );
+
+            this._updateVisuals();
+          },
+          contextMenu: null,
+          _closeContextMenu() {
+            if (this.contextMenu) {
+              this.contextMenu.node.isHighlighted = false;
+              this.contextMenu = null;
+              this._updateVisuals();
+            }
+          },
+          _setupContextMenu() {
+            document.addEventListener("click", () => this._closeContextMenu());
+            document.addEventListener("contextmenu", (e) => {
+              if (!e.target.closest(".node-g")) this._closeContextMenu();
+            });
+          },
+          _updateContextMenu(event, node) {
+            node.isHighlighted = true;
+            document.querySelectorAll(".speed-menu-item").forEach((btn) => {
+              btn.classList.toggle(
+                "speed-item-active",
+                parseInt(btn.dataset.speedIndex) === node.speedIndex,
+              );
+            });
+            const menuW = 175;
+            const menuH = 240;
+            let x = event.clientX;
+            let y = event.clientY;
+            if (x + menuW > window.innerWidth) x -= menuW;
+            if (y + menuH > window.innerHeight) y -= menuH;
+
+            const speedLabel =
+              SPEED_PATTERNS[node.speedIndex].arrow +
+              " " +
+              SPEED_PATTERNS[node.speedIndex].label;
+            const nodeType = node.isInfluencer
+              ? "👑 インフルエンサー"
+              : "ユーザー";
+            const title = `${nodeType} ID:${node.id} ${speedLabel}`;
+            function setOrReset(isIn) {
+              return isIn ? "を解除" : "に設定";
+            }
+            let sources;
+            if (this.scenario === "basic") {
+              sources = [
+                {
+                  label: `${INFO_PROPS.basic.icon} 発信源${setOrReset(node.source === "basic")}`,
+                  kind: "basic",
+                },
+              ];
+            } else {
+              sources = [
+                {
+                  label: `${INFO_PROPS.false.icon} ${INFO_PROPS.false.name}発信源${setOrReset(node.source === "false")}`,
+                  kind: "false",
+                },
+                {
+                  label: `${INFO_PROPS.true.icon} ${INFO_PROPS.true.name}発信源${setOrReset(node.source === "true")}`,
+                  kind: "true",
+                },
+              ];
+            }
+            this.contextMenu = {
+              x, y,
+              title,
+              sources,
+              node,
+            };
+          },
+          changeSpeed(index) {
+            this.contextMenu.node.speedIndex = index;
+            this.updateSpeedLabels();
+            this._closeContextMenu();
+          },
+          _setupDrag() {
+            const mainEl = document.getElementById("main");
+            this._makeDraggable(
+              mainEl,
+              document.getElementById("livePanel"),
+              document.getElementById("panelDragHandle"),
+            );
+            this._makeDraggable(
+              mainEl,
+              document.getElementById("balanceFloat"),
+            );
+          },
+
+          _makeDraggable(parent, el, handle = null) {
+            let offsetX, offsetY;
+            if (handle === null) handle = el;
+            handle.addEventListener("mousedown", (e) => {
+              if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON")
+                return;
+              e.preventDefault();
+              const pr = parent.getBoundingClientRect();
+              const rect = el.getBoundingClientRect();
+              offsetX = e.clientX - rect.left + pr.left;
+              offsetY = e.clientY - rect.top + pr.top;
+              el.style.transform = "none";
+              const onMove = (e) => {
+                el.style.left = `${e.clientX - offsetX}px`;
+                el.style.top = `${e.clientY - offsetY}px`;
+              };
+              const onUp = () => {
+                document.removeEventListener("mousemove", onMove);
+                document.removeEventListener("mouseup", onUp);
+              };
+              document.addEventListener("mousemove", onMove);
+              document.addEventListener("mouseup", onUp);
+            });
+          },
+
+          _setFloatingPanelPositions() {
+            const mainEl = document.getElementById("main");
+            const pr = mainEl.getBoundingClientRect();
+            const lp = document.getElementById("livePanel");
+            const lr = lp.getBoundingClientRect();
+            lp.style.left = `${pr.width - lr.width - 14}px`;
+            lp.style.top = `${pr.height - lr.height - 14}px`;
+            const bf = document.getElementById("balanceFloat");
+            const br = bf.getBoundingClientRect();
+            bf.style.left = `${(pr.width - br.width) / 2}px`;
+            bf.style.top = "14px";
+          },
+
+          _setupResizeObserver() {
+            let timer = null;
+            new ResizeObserver(() => {
+              clearTimeout(timer);
+              timer = setTimeout(() => this._drawGraph(), 200);
+            }).observe(document.getElementById("livePanel"));
+          },
+
+          // ===== 拡散シミュレーション =====
+          async _startBasicScenario(startIds) {
+            this.isSpreading = true;
+            this.isPaused = false;
+            this._stepRequested = false;
+            this._startTime = performance.now();
+            this._graphData = [];
+            this._time50 = null;
+            this._time90 = null;
+            this.ui = { ...this.ui, time50: "--", time90: "--", done: "--" };
+
+            const prob = this.basicSpreadProbability;
+            const queue = [];
+            const visited = new Set();
+
+            startIds.forEach((sid) => {
+              if (visited.has(sid)) return;
+              visited.add(sid);
+              queue.push({ id: sid, from: null, at: 0 });
+              this._applyInfo(sid, "info", true);
+            });
+
+            this._writeLog(
+              `${startIds.length}件の発信源から情報拡散を開始（伝達確率${Math.round(prob * 100)}%）`,
+            );
+            this._updateVisuals();
+            this._updateMetrics();
+            this._recordSnapshot(0);
+            let currentTime = 0;
+
+            try {
+              while (queue.length > 0) {
+                const mode = await this._interceptLifecycle();
+                queue.sort((a, b) => a.at - b.at);
+                const event = queue.shift();
+                if (mode === "step") {
+                  const stepEnd =
+                    currentTime + STEP_TIME_MS / this.speedMultiplier;
+                  if (event.at > stepEnd) {
+                    queue.unshift(event);
+                    this.isPaused = true;
+                    continue;
+                  }
+                }
+                const delay = Math.max(0, event.at - currentTime);
+                if (!this.isPaused) await this._wait(delay);
+                currentTime = event.at;
+                if (!this.isSpreading) throw new Error("Aborted");
+                const node = this._nodes.find((n) => n.id === event.id);
+                if (!node) continue;
+                if (event.from !== null) {
+                  this._applyInfo(event.id, "info", false);
+                  this._activeLinkKeys.add(
+                    this._edgeKey(event.from, event.id) + "-info",
+                  );
+                }
+                this._pulseNode(event.id);
+                this._updateVisuals();
+                this._updateMetrics();
+                this._checkMilestones();
+                this._recordSnapshot(currentTime / BASE_SPREAD_DELAY);
+                (this._adjacency.get(event.id) || []).forEach((nid) => {
+                  if (visited.has(nid)) return;
+                  if (prob < 1.0 && Math.random() > prob) return;
+                  visited.add(nid);
+                  const nNode = this._nodes.find((n) => n.id === nid);
+                  const d = this._effectiveDelay(nNode || node);
+                  queue.push({ id: nid, from: event.id, at: currentTime + d });
+                });
+              }
+              this._finishSpread("拡散完了");
+            } catch (e) {
+              if (e.message !== "Aborted") console.error(e);
+            }
+          },
+
+          async _startCorrectionScenario() {
+            const falseIds =
+              this.sourceIds.false.length > 0
+                ? [...this.sourceIds.false]
+                : [this._getDefaultStartNodeId()];
+            const trueIds =
+              this.sourceIds.true.length > 0
+                ? [...this.sourceIds.true]
+                : [this._getCorrectionSourceId(falseIds[0])];
+
+            this.isSpreading = true;
+            this.isPaused = false;
+            this._stepRequested = false;
+            this._startTime = performance.now();
+            this._graphData = [];
+            this._time50 = null;
+            this._time90 = null;
+            this.ui = { ...this.ui, time50: "--", time90: "--", done: "--" };
+
+            const correctionStartDelay =
+              (this.correctionDelayHours * 2 * BASE_SPREAD_DELAY) /
+              this.speedMultiplier;
+            const queue = [];
+            const visitedByType = { false: new Set(), corrected: new Set() };
+
+            falseIds.forEach((id) => {
+              if (visitedByType.false.has(id)) return;
+              visitedByType.false.add(id);
+              queue.push({
+                id,
+                from: null,
+                at: 0,
+                type: "false",
+                isSource: true,
+              });
+            });
+            trueIds.forEach((id) => {
+              if (visitedByType.corrected.has(id)) return;
+              visitedByType.corrected.add(id);
+              queue.push({
+                id,
+                from: null,
+                at: correctionStartDelay,
+                type: "corrected",
+                isSource: true,
+              });
+            });
+
+            this._writeLog(
+              `${INFO_PROPS.false.name}発信源${falseIds.length}件、` +
+                `${INFO_PROPS.true.name}発信源${trueIds.length}件（${this.correctionDelayHours.toFixed(1)}時間後）`,
+            );
+            let currentTime = 0;
+            this._recordSnapshot(0);
+
+            try {
+              while (queue.length > 0) {
+                const mode = await this._interceptLifecycle();
+                queue.sort((a, b) => a.at - b.at);
+                const event = queue.shift();
+                if (mode === "step") {
+                  const stepEnd =
+                    currentTime + STEP_TIME_MS / this.speedMultiplier;
+                  if (event.at > stepEnd) {
+                    queue.unshift(event);
+                    this.isPaused = true;
+                    continue;
+                  }
+                }
+                const delay = Math.max(0, event.at - currentTime);
+                if (!this.isPaused) await this._wait(delay);
+                currentTime = event.at;
+                if (!this.isSpreading) throw new Error("Aborted");
+                const node = this._nodes.find((n) => n.id === event.id);
+                if (!node) continue;
+                const applied = this._applyInfo(
+                  event.id,
+                  event.type,
+                  event.isSource,
+                );
+                if (!applied) continue;
+                if (event.from !== null)
+                  this._activeLinkKeys.add(
+                    this._edgeKey(event.from, event.id) + "-" + event.type,
+                  );
+                this._pulseNode(event.id);
+                this._updateVisuals();
+                this._updateMetrics();
+                this._checkMilestones();
+                this._recordSnapshot(currentTime / BASE_SPREAD_DELAY);
+                const d = this._effectiveDelay(node);
+                (this._adjacency.get(event.id) || []).forEach((nid) => {
+                  if (visitedByType[event.type].has(nid)) return;
+                  if (
+                    event.type === "false" &&
+                    this._statuses.get(nid) !== "idle"
+                  )
+                    return;
+                  if (
+                    event.type === "corrected" &&
+                    this._statuses.get(nid) !== "idle" &&
+                    this._statuses.get(nid) !== "false"
+                  )
+                    return;
+                  const threshold =
+                    event.type === "false"
+                      ? this.misinfoProbability
+                      : this.correctionSpreadProbability;
+                  if (Math.random() > threshold) return;
+                  visitedByType[event.type].add(nid);
+                  queue.push({
+                    id: nid,
+                    from: event.id,
+                    at: currentTime + d,
+                    type: event.type,
+                    isSource: false,
+                  });
+                });
+              }
+              this._finishSpread("シナリオ終了");
+            } catch (e) {
+              if (e.message !== "Aborted") console.error(e);
+            }
+          },
+
+          _applyInfo(id, type, isSource = false, random = Math.random) {
+            const cur = this._statuses.get(id);
+            if (type === "info") {
+              if (cur !== "idle" && !isSource) return false;
+              this._statuses.set(id, "info");
+              return true;
+            }
+            if (type === "false") {
+              if (cur !== "idle" && !isSource) return false;
+              this._statuses.set(id, "false");
+              return true;
+            }
+            // souce-true & idle->true もcorrected扱いになっている
+            if (type === "corrected") {
+              if (cur === "false") {
+                if (!isSource && random() > this.correctionChance) return false;
+                this._statuses.set(id, "corrected");
+                return true;
+              }
+              if (cur === "idle") {
+                this._statuses.set(id, "corrected");
+                return true;
+              }
+            }
+            return isSource;
+          },
+
+          async _interceptLifecycle() {
+            if (!this.isSpreading) throw new Error("Aborted");
+            while (this.isPaused) {
+              if (this._stepRequested) {
+                this._stepRequested = false;
+                return "step";
+              }
+              await this._wait(80);
+              if (!this.isSpreading) throw new Error("Aborted");
+            }
+            return "normal";
+          },
+
+          _wait(ms) {
+            return new Promise((r) => setTimeout(r, ms));
+          },
+          _effectiveDelay(node) {
+            return SPEED_PATTERNS[node.speedIndex].ms / this.speedMultiplier;
+          },
+
+          _checkMilestones() {
+            const reached = Array.from(this._statuses.values()).filter(
+              (v) => v !== "idle",
+            ).length;
+            const elapsed = (performance.now() - this._startTime) / 1000;
+            if (!this._time50 && reached >= this.userCount * 0.5) {
+              this._time50 = elapsed;
+              this.ui = { ...this.ui, time50: elapsed.toFixed(2) + "秒" };
+            }
+            if (!this._time90 && reached >= this.userCount * 0.9) {
+              this._time90 = elapsed;
+              this.ui = { ...this.ui, time90: elapsed.toFixed(2) + "秒" };
+            }
+          },
+
+          _updateMetrics() {
+            const vals = Array.from(this._statuses.values());
+            const total = this.userCount;
+            const reached = vals.filter((v) => v !== "idle").length;
+            const falseCount = vals.filter((v) => v === "false").length;
+            const trueCount = vals.filter((v) => v === "corrected").length;
+            const fp = Math.round((falseCount / total) * 100);
+            const tp = Math.round((trueCount / total) * 100);
+            this.ui = {
+              ...this.ui,
+              reached: Math.round((reached / total) * 100) + "%",
+              falseCount: falseCount + "人",
+              trueCount: trueCount + "人",
+              barFalsePct: fp,
+              barTruePct: tp,
+              barIdlePct: Math.max(0, 100 - fp - tp),
+            };
+          },
+
+          _resetUiMetrics() {
+            this._time50 = null;
+            this._time90 = null;
+            this.ui = {
+              reached: "0%",
+              falseCount: "0人",
+              trueCount: "0人",
+              time50: "--",
+              time90: "--",
+              done: "--",
+              barFalsePct: 0,
+              barIdlePct: 100,
+              barTruePct: 0,
+            };
+          },
+
+          _finishSpread(label) {
+            const dur = (performance.now() - this._startTime) / 1000;
+            this.ui = {
+              ...this.ui,
+              time50: this._time50 ? this.ui.time50 : "未到達",
+              time90: this._time90 ? this.ui.time90 : "未到達",
+              done: dur.toFixed(2) + "秒",
+            };
+            this._writeLog(`🏁 ${label}：計${dur.toFixed(2)}秒`);
+            this.isSpreading = false;
+            this.isPaused = false;
+            this._updateVisuals();
+            this._updateMetrics();
+          },
+
+          _softResetStatuses() {
+            this._statuses = new Map(this._nodes.map((n) => [n.id, "idle"]));
+            this._activeLinkKeys.clear();
+            this._graphData = [];
+            this._resetUiMetrics();
+            this._updateVisuals();
+            this._drawGraph();
+          },
+
+          _recordSnapshot(step) {
+            const vals = Array.from(this._statuses.values());
+            this._graphData.push({
+              step,
+              info: vals.filter((v) => v === "info").length,
+              false: vals.filter((v) => v === "false").length,
+              true: vals.filter((v) => v === "corrected").length,
+            });
+            this._drawGraph();
+          },
+
+          _drawGraph() {
+            const gSvg = d3.select("#graphSvg");
+            const container = document.getElementById("graphSvg");
+            const W = container.clientWidth || 420;
+            const H = container.clientHeight || 120;
+            gSvg.selectAll("*").remove();
+            if (this._graphData.length < 2) return;
+            const m = { top: 8, right: 8, bottom: 20, left: 30 };
+            const cw = W - m.left - m.right,
+              ch = H - m.top - m.bottom;
+            const g = gSvg
+              .append("g")
+              .attr("transform", `translate(${m.left},${m.top})`);
+            const maxStep = d3.max(this._graphData, (d) => d.step) || 1;
+            const xS = d3
+              .scaleLinear()
+              .domain([0, Math.max(10, maxStep)])
+              .range([0, cw]);
+            const yS = d3
+              .scaleLinear()
+              .domain([0, this.userCount])
+              .range([ch, 0]);
+            g.append("g")
+              .attr("transform", `translate(0,${ch})`)
+              .attr("class", "axis")
+              .call(d3.axisBottom(xS).ticks(5))
+              .style("font-size", "9px")
+              .style("color", "var(--subtle)");
+            g.append("g")
+              .attr("class", "axis")
+              .call(d3.axisLeft(yS).ticks(4))
+              .style("font-size", "9px")
+              .style("color", "var(--subtle)");
+            if (this.scenario === "basic") {
+              g.append("path")
+                .datum(this._graphData)
+                .attr("fill", "none")
+                .attr("stroke", "var(--info)")
+                .attr("stroke-width", 2)
+                .attr(
+                  "d",
+                  d3
+                    .line()
+                    .x((d) => xS(d.step))
+                    .y((d) => yS(d.info)),
+                );
+            } else {
+              g.append("path")
+                .datum(this._graphData)
+                .attr("fill", "none")
+                .attr("stroke", "var(--false)")
+                .attr("stroke-width", 2.5)
+                .attr(
+                  "d",
+                  d3
+                    .line()
+                    .x((d) => xS(d.step))
+                    .y((d) => yS(d.false)),
+                );
+              g.append("path")
+                .datum(this._graphData)
+                .attr("fill", "none")
+                .attr("stroke", "var(--corrected)")
+                .attr("stroke-width", 2.5)
+                .attr(
+                  "d",
+                  d3
+                    .line()
+                    .x((d) => xS(d.step))
+                    .y((d) => yS(d.true)),
+                );
+            }
+          },
+
+          // ===== ビジュアル =====
+          _nodeRadius(d) {
+            const base = this.userCount > 200 ? 4.5 : 6;
+            return d.isInfluencer ? base * 2.2 : base;
+          },
+
+          /**
+           * @param {int} id
+           */
+          _nodeClass(id) {
+            const node = this._nodes[id];
+            const classes = ["node", this._statuses.get(node.id) || "idle"];
+            if (node.isInfluencer) classes.push("influencer");
+            if (this.scenario === "correction" && !this.isSpreading) {
+              if (node.source !== null) {
+                classes.push(`source-${node.source}`);
+              }
+            } else if (node.source === "basic") {
+              classes.push("source");
+            }
+            if (node.isHighlighted)
+              classes.push("highlighted");
+            return classes.join(" ");
+          },
+
+          updateSpeedLabels() {
+            if (!this._labelSelection) return;
+            this._labelSelection
+              .text((d) =>
+                this.showSpeedIcons ? SPEED_PATTERNS[d.speedIndex].arrow : "",
+              )
+              .style("fill", (d) => SPEED_PATTERNS[d.speedIndex].color)
+              .attr("dy", (d) => -(this._nodeRadius(d) + 3));
+          },
+
+          _updateVisuals() {
+            if (!this._nodeSelection || !this._linkSelection) return;
+            this._nodeSelection
+              .attr("class", (d) => this._nodeClass(d.id))
+              .attr("r", (d) => this._nodeRadius(d));
+            this._linkSelection.attr("class", (d) => {
+              const s = typeof d.source === "object" ? d.source.id : d.source;
+              const t = typeof d.target === "object" ? d.target.id : d.target;
+              const key = this._edgeKey(s, t);
+              const cls = ["link"];
+              if (this._isInfluencerLink(d)) cls.push("influencer");
+              if (this._activeLinkKeys.has(key + "-info")) cls.push("info");
+              if (this._activeLinkKeys.has(key + "-false")) cls.push("false");
+              if (this._activeLinkKeys.has(key + "-corrected"))
+                cls.push("corrected");
+              return cls.join(" ");
+            });
+            this.updateSpeedLabels();
+          },
+
+          _pulseNode(id) {
+            if (!this._nodeSelection) return;
+            const node = this._nodes.find((n) => n.id === id);
+            const r = node ? this._nodeRadius(node) : 6;
+            this._nodeSelection
+              .filter((d) => d.id === id)
+              .transition()
+              .duration(80)
+              .attr("r", r * 1.9)
+              .transition()
+              .duration(100)
+              .attr("r", r);
+          },
+
+          _isInfluencerLink(d) {
+            const s = typeof d.source === "object" ? d.source.id : d.source;
+            const t = typeof d.target === "object" ? d.target.id : d.target;
+            const sN = this._nodes.find((n) => n.id === s);
+            const tN = this._nodes.find((n) => n.id === t);
+            return (sN && sN.isInfluencer) || (tN && tN.isInfluencer);
+          },
+
+          _edgeKey(a, b) {
+            return a < b ? `${a}-${b}` : `${b}-${a}`;
+          },
+
+          legends() {
+            if (this.scenario === "basic") {
+              return [
+                ALL_LEGENDS.idle,
+                ALL_LEGENDS.influencer,
+                ALL_LEGENDS.source,
+                ALL_LEGENDS.info
+              ];
+            } else {
+              return [
+                ALL_LEGENDS.idle,
+                ALL_LEGENDS.influencer,
+                ALL_LEGENDS.sourceFalse,
+                ALL_LEGENDS.sourceTrue,
+                ALL_LEGENDS.false,
+                ALL_LEGENDS.corrected,
+              ];
+            }
+          },
+
+          // ===== ユーティリティ =====
+          /**
+           * @param {int[]} excludeIds
+           */
+          _newSource(excludeIds) {
+            const l = this._nodes.length - excludeIds.length;
+            let i = Math.floor(Math.random() * l);
+            for (const id of excludeIds) {
+              if (i >= id) {
+                i++;
+              } else {
+                break;
+              }
+            }
+            return i;
+            // const pool = this._nodes.filter(
+            //   (n) => !set.has(n.id) && (!excludeSet || !excludeSet.has(n.id)),
+            // );
+            // if (pool.length === 0) return;
+            // set.add(pool[Math.floor(Math.random() * pool.length)].id);
+          },
+
+          _getDefaultStartNodeId() {
+            const n = this._nodes.find((n) => !n.isInfluencer);
+            return n ? n.id : 0;
+          },
+
+          _getCorrectionSourceId(falseId) {
+            const infs = this._nodes.filter(
+              (n) => n.isInfluencer && n.id !== falseId,
+            );
+            if (infs.length > 0) return infs[0].id;
+            return (
+              this._nodes.reduce((best, n) => {
+                if (n.id === falseId) return best;
+                const d = this._adjacency.get(n.id)?.length || 0;
+                const bd =
+                  best === null ? -1 : this._adjacency.get(best)?.length || 0;
+                return d > bd ? n.id : best;
+              }, null) ?? 0
+            );
+          },
+
+          // _createRunRandom(a, b) {
+          //   this._runCounter++;
+          //   const seed =
+          //     this._seed * 97 +
+          //     this.userCount * 31 +
+          //     a * 13 +
+          //     b * 17 +
+          //     this._runCounter * 7919;
+          //   return this._seededRandom(seed);
+          // },
+
+          _writeLog(text) {
+            const logEl = document.getElementById("log");
+            const d = document.createElement("div");
+            d.textContent = "> " + text;
+            logEl.prepend(d);
+            while (logEl.children.length > 30)
+              logEl.removeChild(logEl.lastElementChild);
+          },
+        };
+      }
+    </script>
+  </body>
+</html>
