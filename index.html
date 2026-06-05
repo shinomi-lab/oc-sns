@@ -1744,7 +1744,7 @@
                 `ノード${node.id}の${SOURCE_PROPS[itemSource].name}を解除しました`,
               );
             } else {
-              if (node.source !== null) {
+              if (node.source != null) {
                 this.sourceIds[node.source] = this.sourceIds[node.source].filter((id) => id === node.id);
                 node.source = undefined;
                 this._writeLog(
@@ -2204,7 +2204,7 @@
                 if (!this.isPaused) await this._wait(delay);
                 currentTime = event.at;
                 const node = _nodes[event.id];
-                if (event.from !== undefined) {
+                if (event.from != null) {
                   const oldStat = this._applyInfo(node, "info", false);
                   this._activeLinkKeys.add(
                     this._edgeKey(event.from, event.id) + "-info",
@@ -2312,7 +2312,7 @@
                 const node = _nodes[event.id];
                 const oldStat = this._applyInfo(node, event.type, event.isSource);
                 if (node.status === oldStat) continue;
-                if (event.from !== undefined)
+                if (event.from != null)
                   this._activeLinkKeys.add(
                     this._edgeKey(event.from, event.id) + "-" + event.type,
                   );
@@ -2578,7 +2578,7 @@
             const node = _nodes[id];
             const classes = ["node", node.status];
             if (node.isInfluencer) classes.push("influencer");
-            if (node.source !== null) classes.push(`source-${node.source}`);
+            if (node.source != null) classes.push(`source-${node.source}`);
             if (node.isHighlighted) classes.push("highlighted");
             return classes.join(" ");
           },
