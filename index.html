@@ -2165,7 +2165,7 @@
             setScenario(scenario) {
               if (this.isSpreading) return;
               this.scenario = scenario;
-              this._clearAllSources();
+              this.sourceData.clearAll();
               this._softResetStatuses();
               // balanceFloatの位置をシナリオ切り替え後に再設定
               // this.$nextTick(() => this._setFloatingPanelPositions());
