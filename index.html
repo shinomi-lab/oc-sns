@@ -11,25 +11,39 @@
     ></script>
     <style>
       :root {
-        --bg: #0f172a;
-        --surface: #1e293b;
-        --panel: #334155;
-        --line: #475569;
-        --line-soft: #64748b;
-        --text: #f8fafc;
-        --muted: #cbd5e1;
-        --subtle: #94a3b8;
-        --accent: #22d3ee;
-        --accent-dark: #0891b2;
+        /* テーマ非依存固定色 */
         --abort: #ef4444;
         --influencer: #facc15;
+        /* ノード意味色（色相固定・テーマで明度調整） */
+        --vacuous-base: hsl(0, 0%, 50%);
+        --plain-base: hsl(128, 60%, 45%);
+        --false-base: hsl(0, 75%, 55%);
+        --true-base: hsl(185, 55%, 42%);
+        /* テーマ依存色（JSから上書き） */
+        --bg: hsl(222, 47%, 11%);
+        --surface: hsl(222, 40%, 17%);
+        --panel: hsl(222, 32%, 24%);
+        --line: hsl(218, 18%, 42%);
+        --line-soft: hsl(218, 14%, 52%);
+        --text: hsl(210, 40%, 96%);
+        --muted: hsl(215, 25%, 82%);
+        --subtle: hsl(215, 18%, 68%);
+        --accent: hsl(188, 72%, 52%);
+        --accent-dark: hsl(196, 88%, 36%);
+        /* 半透明系（テーマ依存） */
+        --bg-a75: rgba(13, 18, 36, 0.75);
+        --bg-a80: rgba(13, 18, 36, 0.8);
+        --bg-a82: rgba(13, 18, 36, 0.82);
+        --surface-a60: rgba(15, 22, 40, 0.6);
+        --surface-a88: rgba(20, 28, 48, 0.88);
+        --on-surface: rgba(255, 255, 255, 0.04);
+        --on-border: rgba(255, 255, 255, 0.08);
+        --on-divider: rgba(255, 255, 255, 0.07);
+        --on-separator: rgba(255, 255, 255, 0.06);
+        --main-grad-from: hsl(222, 47%, 16%);
+        --node-stroke: hsl(222, 35%, 20%);
         --shadow:
           0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
-        /* base colors */
-        --vacuous-base: hsl(215, 19%, 35%);
-        --plain-base: hsl(128, 100%, 50%);
-        --false-base: hsl(0, 70%, 65%);
-        --true-base: hsl(240, 70%, 65%);
       }
       * {
         box-sizing: border-box;
@@ -56,12 +70,12 @@
       .sidebar {
         background: var(--surface);
         border-right: 1px solid var(--line);
-        padding: 16px;
+        padding: 12px;
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
         overflow-y: auto;
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
         z-index: 10;
       }
       header h1 {
@@ -83,17 +97,17 @@
         color: var(--subtle);
         margin: 4px 0 2px;
         font-weight: 700;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        border-bottom: 1px solid var(--on-divider);
         /*padding-bottom: 4px;*/
       }
       .config-panel {
-        background: rgba(15, 23, 42, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--on-surface);
+        border: 1px solid var(--on-border);
         border-radius: 12px;
-        padding: 12px;
+        padding: 8px;
         display: flex;
         flex-direction: column;
-        gap: 9px;
+        gap: 7px;
       }
       .item-field {
         display: flex;
@@ -141,7 +155,7 @@
         position: absolute;
         bottom: 18px;
         right: 0;
-        background: #1e293b;
+        background: var(--surface);
         border: 1px solid #f59e0b;
         border-radius: 5px;
         padding: 4px 7px;
@@ -157,7 +171,7 @@
       .slider {
         width: 100%;
         height: 5px;
-        background: #0f172a;
+        background: var(--bg);
         border-radius: 3px;
         outline: none;
         -webkit-appearance: none;
@@ -193,7 +207,7 @@
         border: 1px solid var(--line-soft);
         border-bottom: 0;
         border-radius: 4px 4px 0 0;
-        background: #0f172a;
+        background: var(--bg);
         color: var(--muted);
         padding: 7px 10px;
         text-align: center;
@@ -232,31 +246,31 @@
         color: #fff;
       }
       .btn-primary:hover:not(:disabled) {
-        background: #06738d;
+        background: var(--accent-dark);
       }
       .btn-abort {
-        background: rgba(239, 68, 68, 0.2);
+        background: color-mix(in srgb, var(--abort) 20%, transparent);
         border-color: var(--abort);
-        color: #fca5a5;
+        color: color-mix(in srgb, var(--abort) 70%, white);
       }
       .btn-abort:hover:not(:disabled) {
-        background: rgba(239, 68, 68, 0.35);
+        background: color-mix(in srgb, var(--abort) 35%, transparent);
       }
       .btn-secondary {
-        background: #0f172a;
+        background: var(--bg);
         border-color: var(--line);
         color: var(--muted);
       }
       .btn-secondary:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--on-surface);
       }
       .btn-step {
-        background: rgba(34, 211, 238, 0.1);
+        background: color-mix(in srgb, var(--accent) 10%, transparent);
         border-color: var(--accent);
         color: var(--accent);
       }
       .btn-step:hover:not(:disabled) {
-        background: rgba(34, 211, 238, 0.2);
+        background: color-mix(in srgb, var(--accent) 20%, transparent);
       }
       .btn:disabled {
         opacity: 0.2;
@@ -301,7 +315,7 @@
         font-weight: 700;
         cursor: pointer;
         border: 1px solid var(--line);
-        background: #0f172a;
+        background: var(--bg);
         color: var(--muted);
         font-family: inherit;
         display: flex;
@@ -309,8 +323,8 @@
         transition: all 150ms;
       }
       .source-btn:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.07);
-        color: #fff;
+        background: var(--on-border);
+        color: var(--text);
       }
       .source-btn:disabled {
         opacity: 0.3;
@@ -332,7 +346,7 @@
         gap: 5px;
       }
       .metric-card {
-        background: rgba(15, 23, 42, 0.4);
+        background: var(--on-surface);
         border: 1px solid var(--line);
         border-radius: 6px;
         padding: 5px 8px;
@@ -358,7 +372,7 @@
         min-height: 60px;
         min-height: 120px;
         height: 480px;
-        background: #0f172a;
+        background: var(--bg);
         border: 1px solid var(--line);
         border-radius: 6px;
         padding: 5px 7px;
@@ -377,8 +391,8 @@
         height: 100%;
         background: radial-gradient(
           circle at 50% 50%,
-          #1a2744 0%,
-          #0f172a 100%
+          var(--main-grad-from) 0%,
+          var(--bg) 100%
         );
       }
       svg#network {
@@ -391,51 +405,40 @@
         cursor: grabbing;
       }
       /* D3要素 */
-      .node {
-        stroke: #0f172a;
-        stroke-width: 1.5;
+      .node-bg {
         cursor: pointer;
       }
-      /*.node.idle {
-        fill: var(--idle);
+
+      .node-overlay {
+        cursor: pointer;
       }
-      .node.plain {
-        fill: var(--info);
+      @keyframes pulse-ac {
+        0% {
+          transform: scale(1);
+          filter: brightness(1);
+        }
+        20% {
+          transform: scale(1.45);
+          filter: brightness(2.2);
+        }
+        100% {
+          transform: scale(1);
+          filter: brightness(1);
+        }
       }
-      .node.false {
-        fill: var(--false);
+      .node-g.pulsing .node-bg,
+      .node-g.pulsing .node-icon,
+      .node-g.pulsing .node-overlay {
+        animation: pulse-ac 0.7s ease-out forwards;
+        transform-box: fill-box;
+        transform-origin: center;
       }
-      .node.true {
-        fill: var(--corrected);
-      }*/
-      .node.influencer {
-        stroke: var(--influencer);
-        stroke-width: 2.5;
+      .node-icon {
+        image-rendering: pixelated;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
       }
-      .node.source-plain {
-        stroke: var(--plain-base);
-        stroke-width: 3;
-      }
-      .node.source-false {
-        stroke: var(--false-base);
-        stroke-width: 3;
-      }
-      .node.source-true {
-        stroke: var(--true-base);
-        stroke-width: 3;
-      }
-      .node.highlighted {
-        stroke: #fff !important;
-        stroke-width: 3 !important;
-      }
-      .speed-label {
-        font-size: 12px;
-        fill: rgba(255, 255, 255, 0.7);
-        pointer-events: none;
-        font-family: monospace;
-        font-weight: 700;
-        user-select: none;
-      }
+
       /* ズームUI */
       .zoom-controls {
         position: absolute;
@@ -444,7 +447,7 @@
         display: flex;
         flex-direction: column;
         gap: 3px;
-        background: rgba(15, 23, 42, 0.75);
+        background: var(--bg-a75);
         border: 1px solid var(--line);
         border-radius: 6px;
         padding: 3px;
@@ -455,7 +458,7 @@
         height: 26px;
         background: transparent;
         border: 0;
-        color: #fff;
+        color: var(--text);
         font-size: 13px;
         font-weight: 700;
         cursor: pointer;
@@ -465,14 +468,14 @@
         justify-content: center;
       }
       .zoom-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--on-border);
       }
       /* 凡例 */
       .legend-overlay {
         position: absolute;
         left: 14px;
         bottom: 14px;
-        background: rgba(15, 23, 42, 0.8);
+        background: var(--bg-a80);
         border: 1px solid var(--line);
         border-radius: 7px;
         padding: 8px 10px;
@@ -533,35 +536,8 @@
       }
       .legend-divider {
         border: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 1px solid var(--on-border);
         margin: 0;
-      }
-      .legend-speed-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .legend-speed-label {
-        font-size: 12px;
-        color: var(--subtle);
-        font-weight: 700;
-      }
-      .speed-items {
-        display: flex;
-        gap: 8px;
-      }
-      .speed-item {
-        font-size: 12px;
-        color: var(--muted);
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 3px;
-      }
-      .speed-arrow {
-        font-family: monospace;
-        font-size: 14px;
-        font-weight: 700;
       }
       .legend-toggle {
         display: flex;
@@ -584,7 +560,7 @@
       /* バランスメータ */
       .balance-float {
         position: absolute;
-        background: rgba(15, 23, 42, 0.82);
+        background: var(--bg-a82);
         border: 1px solid var(--line);
         border-radius: 8px;
         padding: 8px 14px;
@@ -605,20 +581,20 @@
         height: 10px;
         border-radius: 5px;
         overflow: hidden;
-        background: rgba(71, 85, 105, 0.3);
+        background: var(--true-base);
       }
       .bar-false {
         background: var(--false-base);
         transition: width 200ms ease;
       }
-      .bar-plain {
-        background: var(--false-plain);
+      .bar-vacuous {
+        background: var(--panel);
         transition: width 200ms ease;
       }
-      .bar-true {
+      /*.bar-true {
         background: var(--true-base);
         transition: width 200ms ease;
-      }
+      }*/
       .balance-nums {
         display: flex;
         justify-content: space-between;
@@ -629,9 +605,11 @@
       /* ライブインフォパネル */
       .live-panel {
         position: absolute;
-        width: 460px;
+        width: 540px;
+        height: 240px;
         min-width: 280px;
-        background: rgba(23, 33, 50, 0.88);
+        min-height: 160px;
+        background: color-mix(in srgb, var(--surface) 88%, transparent);
         border: 1px solid var(--line);
         border-radius: 8px;
         box-shadow: var(--shadow);
@@ -639,18 +617,81 @@
         display: flex;
         flex-direction: column;
         z-index: 5;
-        overflow: auto;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+      /* リサイズハンドル */
+      .resize-handle {
+        position: absolute;
+        z-index: 10;
+      }
+      .resize-handle.n {
+        top: -3px;
+        left: 8px;
+        right: 8px;
+        height: 6px;
+        cursor: n-resize;
+      }
+      .resize-handle.s {
+        bottom: -3px;
+        left: 8px;
+        right: 8px;
+        height: 6px;
+        cursor: s-resize;
+      }
+      .resize-handle.e {
+        right: -3px;
+        top: 8px;
+        bottom: 8px;
+        width: 6px;
+        cursor: e-resize;
+      }
+      .resize-handle.w {
+        left: -3px;
+        top: 8px;
+        bottom: 8px;
+        width: 6px;
+        cursor: w-resize;
+      }
+      .resize-handle.nw {
+        top: -3px;
+        left: -3px;
+        width: 12px;
+        height: 12px;
+        cursor: nw-resize;
+      }
+      .resize-handle.ne {
+        top: -3px;
+        right: -3px;
+        width: 12px;
+        height: 12px;
+        cursor: ne-resize;
+      }
+      .resize-handle.sw {
+        bottom: -3px;
+        left: -3px;
+        width: 12px;
+        height: 12px;
+        cursor: sw-resize;
+      }
+      .resize-handle.se {
+        bottom: -3px;
+        right: -3px;
+        width: 12px;
+        height: 12px;
+        cursor: se-resize;
       }
       .live-panel.minimized {
-        overflow: hidden;
+        height: auto !important;
+        min-height: 0 !important;
       }
       .panel-header {
-        background: rgba(15, 23, 42, 0.6);
+        background: var(--surface-a60);
         padding: 7px 10px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid var(--on-surface);
         font-size: 12px;
         font-weight: 700;
         cursor: grab;
@@ -665,16 +706,6 @@
         align-items: center;
         gap: 6px;
       }
-      .opacity-label {
-        font-size: 9px;
-        color: var(--subtle);
-      }
-      .opacity-slider {
-        width: 50px;
-        height: 4px;
-        accent-color: var(--accent);
-        cursor: pointer;
-      }
       .panel-toggle-btn {
         background: transparent;
         border: 0;
@@ -683,9 +714,18 @@
         font-size: 13px;
         font-weight: 800;
         line-height: 1;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        position: relative;
+        z-index: 1;
       }
       .panel-toggle-btn:hover {
-        color: #fff;
+        background: var(--on-border);
+        color: var(--text);
       }
       .panel-body {
         padding: 4px;
@@ -693,11 +733,12 @@
         flex-direction: column;
         gap: 8px;
         flex: 1;
-        min-height: 120px;
+        overflow: hidden;
       }
       .panel-body svg {
         flex: 1;
-        min-height: 80px;
+        min-height: 0;
+        width: 100%;
       }
       .minimized .panel-body {
         display: none;
@@ -705,7 +746,7 @@
       /* コンテキストメニュー */
       .node-context-menu {
         position: fixed;
-        background: #1e293b;
+        background: var(--surface);
         border: 1px solid var(--line-soft);
         border-radius: 8px;
         box-shadow: var(--shadow);
@@ -720,7 +761,7 @@
         color: var(--subtle);
         font-weight: 800;
         padding: 3px 7px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid var(--on-separator);
         margin-bottom: 3px;
       }
       .menu-section-label {
@@ -747,18 +788,22 @@
         font-family: inherit;
         width: 100%;
       }
-      .menu-item:hover {
+      .menu-item:hover:not(:disabled) {
         background: var(--accent-dark);
         color: #fff;
       }
+      .menu-item:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
       .menu-separator {
         border: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.07);
+        border-top: 1px solid var(--on-divider);
         margin: 3px 0;
       }
       .axis line,
       .axis path {
-        stroke: rgba(255, 255, 255, 0.08);
+        stroke: var(--on-border);
       }
       /* Alpine cloak */
       [x-cloak] {
@@ -775,9 +820,72 @@
     <div x-data="App.simulator()" x-init="init()">
       <div class="app">
         <aside class="sidebar">
-          <header>
-            <h1>SNS情報拡散シミュレーション</h1>
-            <!--<p class="subtitle">ネットワーク上での情報の広がりを見てみよう</p>-->
+          <header style="display: flex; flex-direction: column; gap: 6px">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 6px;
+              "
+            >
+              <h1
+                style="
+                  margin: 0;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  font-size: 15px;
+                "
+              >
+                SNS情報拡散シミュレーション
+              </h1>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 5px;
+                  flex-shrink: 0;
+                "
+              >
+                <div
+                  style="
+                    width: 9px;
+                    height: 9px;
+                    border-radius: 50%;
+                    flex-shrink: 0;
+                    border: 1px solid var(--line);
+                    transition: background 200ms;
+                  "
+                  :style="'background:' + App.THEME_DOTS[theme]"
+                ></div>
+                <select
+                  x-model="theme"
+                  style="
+                    background: var(--bg);
+                    border: 1px solid var(--line);
+                    border-radius: 5px;
+                    color: var(--subtle);
+                    font-size: 10px;
+                    font-weight: 600;
+                    padding: 3px 20px 3px 7px;
+                    cursor: pointer;
+                    outline: none;
+                    font-family: inherit;
+                    -webkit-appearance: none;
+                    appearance: none;
+                    background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E&quot;);
+                    background-repeat: no-repeat;
+                    background-position: right 6px center;
+                  "
+                >
+                  <option value="dark">🌙 ダーク</option>
+                  <option value="lavender">💜 ラベンダー</option>
+                  <option value="rose">🌸 ローズ</option>
+                  <option value="sky">🩵 スカイ</option>
+                </select>
+              </div>
+            </div>
           </header>
 
           <div class="section-title">ネットワーク</div>
@@ -829,23 +937,6 @@
 
           <div class="section-title">シナリオ</div>
           <div class="config-panel">
-            <div class="item-field">
-              <div class="item-label-row">
-                <span>インフルエンサー人数</span>
-                <span class="item-value" x-text="influencerCount + '人'"></span>
-              </div>
-              <input
-                type="range"
-                id="influencerCountInput"
-                min="1"
-                :max="Math.min(20, userCount)"
-                value="2"
-                class="slider"
-                :disabled="!isNone"
-                x-model.number="influencerCount"
-                @change="onInfluencerCountChange()"
-              />
-            </div>
             <div>
               <div class="segmented" role="group">
                 <template x-for="(tab, index) in scenarioTabs" :key="index">
@@ -1002,34 +1093,6 @@
             </div>
           </div>
 
-          <div class="section-title">統計</div>
-          <div class="metrics-grid">
-            <div class="metric-card">
-              <span>情報が届いた割合</span>
-              <strong x-text="ui.reached"></strong>
-            </div>
-            <div class="metric-card">
-              <span>デマに接した人数</span>
-              <strong x-text="ui.falseCount"></strong>
-            </div>
-            <div class="metric-card">
-              <span>訂正情報を受け取った人数</span>
-              <strong x-text="ui.trueCount"></strong>
-            </div>
-            <div class="metric-card">
-              <span>半数に届くまでの時間</span>
-              <strong x-text="ui.time50"></strong>
-            </div>
-            <div class="metric-card">
-              <span>ほぼ全員に届くまでの時間</span>
-              <strong x-text="ui.time90"></strong>
-            </div>
-            <div class="metric-card">
-              <span>シミュレーション時間</span>
-              <strong x-text="ui.done"></strong>
-            </div>
-          </div>
-
           <div class="section-title">ログ</div>
           <div class="log-panel" id="log"></div>
         </aside>
@@ -1048,13 +1111,13 @@
                 :style="'width:' + ui.barFalsePct + '%'"
               ></div>
               <div
-                class="bar-idle"
+                class="bar-vacuous"
                 :style="'width:' + ui.barIdlePct + '%'"
               ></div>
-              <div
+              <!--<div
                 class="bar-true"
                 :style="'width:' + ui.barTruePct + '%'"
-              ></div>
+              ></div>-->
             </div>
             <div class="balance-nums">
               <span
@@ -1075,62 +1138,23 @@
             <button class="zoom-btn" id="zoomResetBtn">⌂</button>
           </div>
 
-          <!-- 凡例 -->
-          <div class="legend-overlay">
-            <!--<div class="legend-items">
-              <template x-for="(item, index) in legends()" :key="index">
-                <div class="legend-item">
-                  <span :class="`swatch ${item.kind}`"></span><span x-text="item.label"></span>
-                </div>
-              </template>
-            </div>-->
-            <!--<hr class="legend-divider" />-->
-            <div
-              class="legend-speed-row"
-              id="legendSpeedRow"
-              x-show="showSpeedIcons"
-            >
-              <span class="legend-speed-label">反応速度：</span>
-              <div class="speed-items">
-                <template x-for="(item, index) in speedPatterns()" :key="index">
-                  <div class="speed-item">
-                    <span
-                      class="speed-arrow"
-                      :style="{color: item.color}"
-                      x-text="item.arrow"
-                    ></span
-                    ><span x-text="item.label"></span>
-                  </div>
-                </template>
-              </div>
-            </div>
-            <label class="legend-toggle">
-              <input
-                type="checkbox"
-                class="toggle-checkbox"
-                id="showSpeedToggle"
-                x-model="showSpeedIcons"
-                @change="updateSpeedLabels()"
-              />
-              <span class="legend-toggle-label">反応速度を表示</span>
-            </label>
-          </div>
-
           <!-- ライブインフォパネル -->
-          <div class="live-panel" id="livePanel">
+          <div
+            class="live-panel"
+            id="livePanel"
+            :class="{ minimized: panelMinimized }"
+          >
+            <div class="resize-handle n" data-dir="n"></div>
+            <div class="resize-handle s" data-dir="s"></div>
+            <div class="resize-handle e" data-dir="e"></div>
+            <div class="resize-handle w" data-dir="w"></div>
+            <div class="resize-handle nw" data-dir="nw"></div>
+            <div class="resize-handle ne" data-dir="ne"></div>
+            <div class="resize-handle sw" data-dir="sw"></div>
+            <div class="resize-handle se" data-dir="se"></div>
             <div class="panel-header" id="panelDragHandle">
               <span>📊 シミュレーション状況</span>
               <div class="panel-controls">
-                <span class="opacity-label">透明度</span>
-                <input
-                  type="range"
-                  class="opacity-slider"
-                  id="panelOpacityInput"
-                  min="15"
-                  max="100"
-                  value="88"
-                  @input="$el.closest('.live-panel').style.background = 'rgba(23,33,50,' + $el.value/100 + ')'"
-                />
                 <button
                   class="panel-toggle-btn"
                   @click="panelMinimized = !panelMinimized"
@@ -1154,21 +1178,10 @@
             <template x-for="(item, index) in contextMenu.sources" :key="index">
               <button
                 class="menu-item"
+                :disabled="!isNone"
                 @click="toggleSource(item.kind)"
                 x-text="item.label"
               ></button>
-            </template>
-            <hr class="menu-separator" />
-            <div class="menu-section-label">反応速度</div>
-            <template x-for="(p, index) in speedPatterns()" :key="index">
-              <button class="menu-item" @click="changeSpeed(index)">
-                <span
-                  class="speed-arrow"
-                  :style="{color: p.color}"
-                  x-text="p.arrow"
-                ></span
-                ><span x-text="p.label"></span>
-              </button>
             </template>
           </div>
         </template>
@@ -1184,19 +1197,167 @@
         * @typedef {BasicInfo | CorrectionInfo} Info
         */
 
-        const SPEED_DIST_WEIGHTS = [0.35, 0.28, 0.2, 0.11, 0.06];
         const BASE_SPREAD_DELAY = 500;
         const STEP_TIME_MS = 1000;
 
-        const SPEED_PATTERNS = Object.freeze([
-          { label: "最速", arrow: "↑", ms: 160, color: "#f472b6" },
-          { label: "早い", arrow: "↗", ms: 240, color: "#fb923c" },
-          { label: "普通", arrow: "→", ms: 320, color: "#facc15" },
-          { label: "遅い", arrow: "↘", ms: 400, color: "#60a5fa" },
-          { label: "最遅", arrow: "↓", ms: 500, color: "#818cf8" },
-        ]);
+        // ===== テーマ定義 =====
+        const THEMES = {
+          dark: {
+            "--bg": "hsl(222, 47%, 11%)",
+            "--surface": "hsl(222, 40%, 17%)",
+            "--panel": "hsl(222, 32%, 24%)",
+            "--line": "hsl(218, 18%, 42%)",
+            "--line-soft": "hsl(218, 14%, 52%)",
+            "--text": "hsl(210, 40%, 96%)",
+            "--muted": "hsl(215, 25%, 82%)",
+            "--subtle": "hsl(215, 18%, 68%)",
+            "--accent": "hsl(188, 72%, 52%)",
+            "--accent-dark": "hsl(196, 88%, 36%)",
+            "--bg-a75": "rgba(13,18,36,0.75)",
+            "--bg-a80": "rgba(13,18,36,0.80)",
+            "--bg-a82": "rgba(13,18,36,0.82)",
+            "--surface-a60": "rgba(15,22,40,0.60)",
+            "--surface-a88": "rgba(20,28,48,0.88)",
+            "--on-surface": "rgba(255,255,255,0.04)",
+            "--on-border": "rgba(255,255,255,0.08)",
+            "--on-divider": "rgba(255,255,255,0.07)",
+            "--on-separator": "rgba(255,255,255,0.06)",
+            "--main-grad-from": "hsl(222,47%,16%)",
+            "--node-stroke": "hsl(222,35%,20%)",
+            "--shadow":
+              "0 20px 25px -5px rgb(0 0 0/0.5),0 8px 10px -6px rgb(0 0 0/0.5)",
+            "--vacuous-base": "hsl(0,0%,50%)",
+            "--plain-base": "hsl(128,55%,55%)",
+            "--false-base": "hsl(0,75%,62%)",
+            "--true-base": "hsl(185,55%,52%)",
+          },
+          lavender: {
+            "--bg": "hsl(270,100%,99%)",
+            "--surface": "hsl(270,60%,95%)",
+            "--panel": "hsl(270,40%,89%)",
+            "--line": "hsl(270,35%,80%)",
+            "--line-soft": "hsl(270,25%,70%)",
+            "--text": "hsl(270,50%,18%)",
+            "--muted": "hsl(270,30%,32%)",
+            "--subtle": "hsl(270,20%,50%)",
+            "--accent": "hsl(280,60%,58%)",
+            "--accent-dark": "hsl(280,65%,44%)",
+            "--bg-a75": "rgba(248,244,255,0.75)",
+            "--bg-a80": "rgba(248,244,255,0.82)",
+            "--bg-a82": "rgba(248,244,255,0.85)",
+            "--surface-a60": "rgba(240,232,255,0.70)",
+            "--surface-a88": "rgba(244,238,255,0.92)",
+            "--on-surface": "rgba(140,80,200,0.06)",
+            "--on-border": "rgba(140,80,200,0.12)",
+            "--on-divider": "rgba(140,80,200,0.10)",
+            "--on-separator": "rgba(140,80,200,0.08)",
+            "--main-grad-from": "hsl(270,60%,93%)",
+            "--node-stroke": "hsl(0,0%,78%)",
+            "--shadow":
+              "0 20px 25px -5px rgb(160 100 220/0.15),0 8px 10px -6px rgb(160 100 220/0.10)",
+            "--vacuous-base": "hsl(0,0%,50%)",
+            "--plain-base": "hsl(128,55%,32%)",
+            "--false-base": "hsl(0,70%,50%)",
+            "--true-base": "hsl(185,55%,40%)",
+          },
+          rose: {
+            "--bg": "hsl(340,100%,99%)",
+            "--surface": "hsl(340,60%,95%)",
+            "--panel": "hsl(340,40%,89%)",
+            "--line": "hsl(340,38%,80%)",
+            "--line-soft": "hsl(340,28%,70%)",
+            "--text": "hsl(340,50%,16%)",
+            "--muted": "hsl(340,28%,30%)",
+            "--subtle": "hsl(340,18%,48%)",
+            "--accent": "hsl(322,70%,58%)",
+            "--accent-dark": "hsl(322,75%,44%)",
+            "--bg-a75": "rgba(255,244,248,0.75)",
+            "--bg-a80": "rgba(255,244,248,0.82)",
+            "--bg-a82": "rgba(255,244,248,0.85)",
+            "--surface-a60": "rgba(255,232,240,0.70)",
+            "--surface-a88": "rgba(255,238,244,0.92)",
+            "--on-surface": "rgba(210,80,120,0.06)",
+            "--on-border": "rgba(210,80,120,0.12)",
+            "--on-divider": "rgba(210,80,120,0.10)",
+            "--on-separator": "rgba(210,80,120,0.08)",
+            "--main-grad-from": "hsl(340,60%,93%)",
+            "--node-stroke": "hsl(0,0%,78%)",
+            "--shadow":
+              "0 20px 25px -5px rgb(220 100 140/0.15),0 8px 10px -6px rgb(220 100 140/0.10)",
+            "--vacuous-base": "hsl(0,0%,50%)",
+            "--plain-base": "hsl(128,55%,32%)",
+            "--false-base": "hsl(0,70%,50%)",
+            "--true-base": "hsl(185,55%,40%)",
+          },
+          sky: {
+            "--bg": "hsl(200,100%,98%)",
+            "--surface": "hsl(200,60%,93%)",
+            "--panel": "hsl(200,42%,87%)",
+            "--line": "hsl(200,38%,76%)",
+            "--line-soft": "hsl(200,28%,65%)",
+            "--text": "hsl(200,60%,14%)",
+            "--muted": "hsl(200,32%,28%)",
+            "--subtle": "hsl(200,20%,46%)",
+            "--accent": "hsl(200,80%,44%)",
+            "--accent-dark": "hsl(200,85%,32%)",
+            "--bg-a75": "rgba(240,250,255,0.75)",
+            "--bg-a80": "rgba(240,250,255,0.82)",
+            "--bg-a82": "rgba(240,250,255,0.85)",
+            "--surface-a60": "rgba(220,242,255,0.70)",
+            "--surface-a88": "rgba(232,246,255,0.92)",
+            "--on-surface": "rgba(60,150,210,0.06)",
+            "--on-border": "rgba(60,150,210,0.12)",
+            "--on-divider": "rgba(60,150,210,0.10)",
+            "--on-separator": "rgba(60,150,210,0.08)",
+            "--main-grad-from": "hsl(200,60%,91%)",
+            "--node-stroke": "hsl(0,0%,78%)",
+            "--shadow":
+              "0 20px 25px -5px rgb(80 160 210/0.15),0 8px 10px -6px rgb(80 160 210/0.10)",
+            "--vacuous-base": "hsl(0,0%,50%)",
+            "--plain-base": "hsl(128,55%,32%)",
+            "--false-base": "hsl(0,70%,50%)",
+            "--true-base": "hsl(185,55%,40%)",
+          },
+        };
 
-        const SPEED_LABELS = SPEED_PATTERNS.map((p) => `${p.arrow} ${p.label}`);
+        const THEME_DOTS = {
+          dark: "hsl(222,40%,22%)",
+          lavender: "hsl(280,60%,65%)",
+          rose: "hsl(340,70%,65%)",
+          sky: "hsl(200,80%,52%)",
+        };
+
+        let _currentTheme = "dark";
+        let _avgDegree = 0;
+        let _maxDegree = 0;
+        let _influencerThreshold = 0;
+
+        function applyTheme(name) {
+          _currentTheme = name;
+          const theme = THEMES[name];
+          if (!theme) return;
+          const root = document.documentElement;
+          Object.entries(theme).forEach(([k, v]) =>
+            root.style.setProperty(k, v),
+          );
+        }
+
+        function getCssHsl(varName) {
+          const raw = THEMES[_currentTheme]?.[varName];
+          if (!raw) {
+            console.warn(
+              "getCssHsl: key not found in theme",
+              _currentTheme,
+              varName,
+            );
+            return { raw: "hsl(0,0%,0%)", hsl: { h: 0, s: 0, l: 0 } };
+          }
+          const parsed = d3.hsl(raw);
+          if (!parsed || isNaN(parsed.h))
+            return { raw, hsl: { h: 0, s: 0, l: 0 } };
+          const { h, s, l } = parsed;
+          return { raw, hsl: { h, s, l } };
+        }
 
         /**
          * @type{Record<Info, {name: string, longName?: string}>}
@@ -1218,18 +1379,9 @@
          * @type{Record<Info, {icon: string, name: string}>}
          */
         const SOURCE_PROPS = {
-          plain: {
-            icon: "🏁",
-            name: `${INFO_PROPS.plain.name}発信源`,
-          },
-          false: {
-            icon: "🔴",
-            name: `${INFO_PROPS.false.name}発信源`,
-          },
-          true: {
-            icon: "🟢",
-            name: `${INFO_PROPS.true.longName}発信源`,
-          },
+          plain: { name: `${INFO_PROPS.plain.name}発信源` },
+          false: { name: `${INFO_PROPS.false.name}発信源` },
+          true: { name: `${INFO_PROPS.true.longName}発信源` },
         };
 
         const INFOS_BY_SOURCE = {
@@ -1241,7 +1393,7 @@
 
         const SCENARIO_TAB = {
           basic: "単純な情報拡散",
-          correction: `${INFO_PROPS.false.name} vs ${INFO_PROPS.true.name}`,
+          correction: `${INFO_PROPS.false.name} vs ${INFO_PROPS.true.longName}`,
         };
 
         const ALL_LEGENDS = {
@@ -1308,8 +1460,6 @@
        * @property {number} y
        * @property {number} vx
        * @property {number} vy
-       * @property {number} speedIndex
-       * @property {boolean} isInfluencer
        * @property {boolean} isHighlighted
        * @property {Info} [source]
        * @property {Adoption} adoption
@@ -1331,8 +1481,6 @@
             get neighbors() {
               return [...this.inNeighbors, ...this.outNeighbors];
             },
-            speedIndex: 0,
-            isInfluencer: false,
             isHighlighted: false,
             adoption: { kind: "vacuous" },
             source: undefined,
@@ -1461,40 +1609,7 @@
          */
         let _sortedNodes = [];
 
-        function _randomSpeed() {
-          const r = Math.random();
-          let cumul = 0;
-          for (let i = 0; i < SPEED_DIST_WEIGHTS.length; i++) {
-            cumul += SPEED_DIST_WEIGHTS[i];
-            if (r <= cumul) {
-              return i;
-            }
-          }
-          return SPEED_DIST_WEIGHTS.length - 1;
-        }
-
-        function _shuffleSpeeds() {
-          _nodes.forEach((node) => {
-            node.speedIndex = _randomSpeed();
-          });
-        }
-
         let oldCount = 0;
-        function _updateInfluencers(newCount) {
-          for (const [index, node] of _sortedNodes.entries()) {
-            if (index < newCount) {
-              node.isInfluencer = true;
-              node.speedIndex = 0;
-            } else if (index < oldCount) {
-              node.isInfluencer = false;
-              node.speedIndex = _randomSpeed();
-            } else {
-              break;
-            }
-          }
-          oldCount = newCount;
-        }
-
         const activeLinkMap = {
           /**
            * @typedef {Object} ActiveLink
@@ -1540,27 +1655,6 @@
          * @property {number} l
          */
 
-        const getCssHsl = (() => {
-          /**
-           * @type {Map<string, {raw: string; hsl: HSL}>}
-           */
-          const cache = new Map();
-          /**
-           * @param {string} varName
-           */
-          function f(varName) {
-            if (!cache.has(varName)) {
-              const raw = getComputedStyle(document.documentElement)
-                .getPropertyValue(varName)
-                .trim();
-              const { h, s, l } = d3.hsl(raw);
-              cache.set(varName, { raw, hsl: { h, s, l } });
-            }
-            return cache.get(varName);
-          }
-          return f;
-        })();
-
         /**
          * @typedef {"vacuous" | Info} StatKey
          */
@@ -1590,9 +1684,11 @@
           let { h, s, l } = hsl;
           return Array.from({ length: count }, (_, i) => {
             const t = count === 1 ? 0.5 : i / (count - 1);
+            // 明度はベース値より常に明るく（0.75〜1.0倍+底上げ）してvacuousより暗くならないよう保証
+            const lBright = Math.min(0.95, l + 0.15 + t * 0.1);
             /** @type {string} */
             const color = d3
-              .hsl((h + (t - 0.5) * 40) % 360, s, l * (0.4 + t * 0.6))
+              .hsl((h + (t - 0.5) * 20) % 360, Math.min(1, s + 0.1), lBright)
               .toString();
             return color;
           });
@@ -1659,7 +1755,7 @@
           const H = container.clientHeight || 120;
           gSvg.selectAll("*").remove();
           if (_graphData.length < 2) return;
-          const m = { top: 8, right: 8, bottom: 20, left: 30 };
+          const m = { top: 12, right: 52, bottom: 20, left: 42 };
           const cw = W - m.left - m.right,
             ch = H - m.top - m.bottom;
           const g = gSvg
@@ -1667,57 +1763,86 @@
             .attr("transform", `translate(${m.left},${m.top})`);
           const maxStep = _graphData.at(-1).step || 1;
           const xS = d3.scaleLinear().domain([0, maxStep]).range([0, cw]);
-          const yS = d3.scaleLinear().domain([0, userCount]).range([ch, 0]);
+          const yS = d3.scaleLinear().domain([0, 100]).range([ch, 0]);
           g.append("g")
             .attr("transform", `translate(0,${ch})`)
             .attr("class", "axis")
-            .call(d3.axisBottom(xS).ticks(5))
-            .style("font-size", "9px")
+            .call(
+              d3
+                .axisBottom(xS)
+                .ticks(5)
+                .tickFormat((d) => `${d}s`),
+            )
+            .style("font-size", "11px")
             .style("color", "var(--subtle)");
           g.append("g")
             .attr("class", "axis")
-            .call(d3.axisLeft(yS).ticks(4))
-            .style("font-size", "9px")
+            .call(
+              d3
+                .axisLeft(yS)
+                .ticks(4)
+                .tickFormat((d) => `${d}%`),
+            )
+            .style("font-size", "11px")
             .style("color", "var(--subtle)");
 
-          if (scenario === "basic") {
+          // グリッド線（水平・垂直）
+          g.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(yS).ticks(4).tickSize(-cw).tickFormat(""))
+            .call((g) => g.select(".domain").remove())
+            .call((g) =>
+              g
+                .selectAll(".tick line")
+                .attr("stroke", "var(--line-soft)")
+                .attr("stroke-opacity", 0.5)
+                .attr("stroke-dasharray", "3,3"),
+            );
+          g.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${ch})`)
+            .call(d3.axisBottom(xS).ticks(5).tickSize(-ch).tickFormat(""))
+            .call((g) => g.select(".domain").remove())
+            .call((g) =>
+              g
+                .selectAll(".tick line")
+                .attr("stroke", "var(--line-soft)")
+                .attr("stroke-opacity", 0.5)
+                .attr("stroke-dasharray", "3,3"),
+            );
+
+          // 折れ線と終点ラベルを描く共通関数
+          const drawLine = (key, color) => {
             g.append("path")
               .datum(_graphData)
               .attr("fill", "none")
-              .attr("stroke", "var(--plain-base)")
+              .attr("stroke", color)
               .attr("stroke-width", 2)
               .attr(
                 "d",
                 d3
                   .line()
                   .x((d) => xS(d.step))
-                  .y((d) => yS(d.plain)),
+                  .y((d) => yS((d[key] / userCount) * 100)),
               );
+            const last = _graphData.at(-1);
+            if (last && last[key] != null) {
+              const pct = Math.round((last[key] / userCount) * 100);
+              g.append("text")
+                .attr("x", cw + 4)
+                .attr("y", yS((last[key] / userCount) * 100) + 4)
+                .attr("font-size", "12px")
+                .attr("font-weight", "700")
+                .attr("fill", color)
+                .text(`${pct}%`);
+            }
+          };
+
+          if (scenario === "basic") {
+            drawLine("plain", "var(--plain-base)");
           } else {
-            g.append("path")
-              .datum(_graphData)
-              .attr("fill", "none")
-              .attr("stroke", "var(--false-base)")
-              .attr("stroke-width", 2.5)
-              .attr(
-                "d",
-                d3
-                  .line()
-                  .x((d) => xS(d.step))
-                  .y((d) => yS(d.false)),
-              );
-            g.append("path")
-              .datum(_graphData)
-              .attr("fill", "none")
-              .attr("stroke", "var(--true-base)")
-              .attr("stroke-width", 2.5)
-              .attr(
-                "d",
-                d3
-                  .line()
-                  .x((d) => xS(d.step))
-                  .y((d) => yS(d.true)),
-              );
+            drawLine("false", "var(--false-base)");
+            drawLine("true", "var(--true-base)");
           }
         }
 
@@ -1777,6 +1902,23 @@
           }
           _nodes = nodes;
           _sortedNodes = [..._nodes].sort((a, b) => b.degree - a.degree);
+
+          // 次数統計計算
+          _avgDegree = _nodes.reduce((s, n) => s + n.degree, 0) / _nodes.length;
+          _maxDegree = _nodes.reduce((max, n) => Math.max(max, n.degree), 0);
+          _influencerThreshold = _avgDegree * 1.5;
+
+          // アイコンID割り当て（全600枚からシードベースでランダム）
+          const iconRandom = _seededRandom(_seed * 13 + n * 7);
+          const iconPool = Array.from({ length: 600 }, (_, i) => i + 1);
+          for (let i = iconPool.length - 1; i > 0; i--) {
+            const j = Math.floor(iconRandom() * (i + 1));
+            [iconPool[i], iconPool[j]] = [iconPool[j], iconPool[i]];
+          }
+          nodes.forEach((node, i) => {
+            node.iconId = iconPool[i % iconPool.length];
+          });
+
           return tempLinks;
         }
 
@@ -1802,18 +1944,14 @@
           if (x + menuW > window.innerWidth) x -= menuW;
           if (y + menuH > window.innerHeight) y -= menuH;
 
-          const speedLabel = SPEED_LABELS[node.speedIndex];
-          const nodeType = node.isInfluencer
-            ? "👑 インフルエンサー"
-            : "ユーザー";
-          const title = `${nodeType} ID:${node.id} ${speedLabel}`;
+          const title = `ユーザー ID:${node.id}`;
           const sources = INFOS_BY_SOURCE[scenario].map(
             (/** @type {Info} */ kind) => {
               const prop = SOURCE_PROPS[kind];
               const msg = node.source === kind ? "を解除" : "に設定";
               return {
                 kind,
-                label: `${prop.icon} ${prop.name}${msg}`,
+                label: `${prop.name}${msg}`,
               };
             },
           );
@@ -1829,16 +1967,34 @@
         // D3オブジェクト
         let _simulation = null;
         let _nodeSelection = null;
+        let _nodeBgSelection = null;
+        let _nodeGSelection = null;
         let _linkSelection = null;
-        let _labelSelection = null;
 
         /**
          * @param {Node} node
          */
+        /**
+         * ユーザー数に応じてノードサイズを2段階で切り替える。
+         * 元アイコンが64×64pxのドット絵なので、整数倍（64px or 32px）にして滲みを防ぐ。
+         * @param {number} userCount
+         * @returns {number}
+         */
+        function _nodeSize(node) {
+          if (
+            _maxDegree <= _influencerThreshold ||
+            node.degree < _influencerThreshold
+          ) {
+            return 32;
+          }
+          const t =
+            (node.degree - _influencerThreshold) /
+            (_maxDegree - _influencerThreshold);
+          return Math.round(32 + t * 32);
+        }
+
         function _nodeRadius(node) {
-          // const base = this.userCount > 200 ? 4.5 : 8;
-          const base = 8;
-          return node.isInfluencer ? base * 1.8 : base;
+          return _nodeSize(node) / 2;
         }
 
         /**
@@ -1846,7 +2002,6 @@
          */
         function _nodeClass(node) {
           const classes = ["node"];
-          if (node.isInfluencer) classes.push("influencer");
           if (node.source != null) classes.push(`source-${node.source}`);
           if (node.isHighlighted) classes.push("highlighted");
           return classes.join(" ");
@@ -1867,15 +2022,20 @@
          * @param {Node} node
          */
         function _pulseNode(node) {
-          const r = _nodeRadius(node);
-          _nodeSelection
-            ?.filter((d) => d.id === node.id)
-            ?.transition()
-            ?.duration(80)
-            ?.attr("r", r * 1.9)
-            ?.transition()
-            ?.duration(100)
-            ?.attr("r", r);
+          if (!_nodeGSelection) return;
+          _nodeGSelection
+            .filter((d) => d.id === node.id)
+            .each(function () {
+              const el = this;
+              el.classList.remove("pulsing");
+              void el.offsetWidth;
+              el.classList.add("pulsing");
+              el.addEventListener(
+                "animationend",
+                () => el.classList.remove("pulsing"),
+                { once: true },
+              );
+            });
         }
 
         /**
@@ -1888,60 +2048,44 @@
           let stroke, width, opacity;
           if (!a) {
             stroke = COLORS.vacuous.raw;
-            width = 1;
-            opacity = 0.25;
+            width = 1.5;
+            opacity = 0.45;
           } else {
             stroke = sourceData[a.info].colors[a.sourceId];
-            width = 2;
-            opacity = 0.5;
+            width = 3.5;
+            opacity = 0.7;
           }
           return `stroke:${stroke};stroke-width:${width};stroke-opacity:${opacity}`;
         }
 
-        /**
-         * @param {boolean} isShow
-         */
-        function drawSpeedIcons(isShow) {
-          if (isShow) {
-            _labelSelection
-              ?.text((d) => SPEED_PATTERNS[d.speedIndex].arrow)
-              ?.style("fill", (d) => SPEED_PATTERNS[d.speedIndex].color)
-              ?.attr("dy", (d) => -(_nodeRadius(d) + 3));
-          } else {
-            _labelSelection?.text((d) => "");
-          }
-        }
-        /**
-         * @param {{
-         * showSpeedIcons: boolean
-         * sourceData: Record<Info, { colors: string[] }>
-         * }} comp
-         */
         function _updateVisuals(comp) {
+          _nodeBgSelection?.attr("fill", (d) => _nodeColor(d, comp.sourceData));
+          // コンテキストメニュー表示中のノードを暗化
           _nodeSelection
-            ?.attr("class", (d) => _nodeClass(d))
-            ?.attr("r", (d) => _nodeRadius(d))
-            ?.attr("fill", (d) => _nodeColor(d, comp.sourceData));
-          _linkSelection
-            // .attr("class", (d) => this._linkClass(d))
-            ?.attr("style", (d) => _linkStyle(d, comp.sourceData));
-          drawSpeedIcons(comp.showSpeedIcons);
+            ?.attr("fill", (d) =>
+              d.isHighlighted ? "rgba(0,0,0,0.45)" : "transparent",
+            )
+            ?.attr("fill-opacity", (d) => (d.isHighlighted ? 1 : 0));
+          // node-overlayのfillはpulseアニメーション中なので上書きしない
+          // 発信源枠線更新
+          _nodeBgSelection
+            ?.attr("stroke", (d) => {
+              if (d.source === "plain") return "var(--plain-base)";
+              if (d.source === "false") return "var(--false-base)";
+              if (d.source === "true") return "var(--true-base)";
+              return "none";
+            })
+            ?.attr("stroke-width", (d) => (d.source != null ? 3 : 0));
+          _linkSelection?.attr("style", (d) => _linkStyle(d, comp.sourceData));
         }
 
-        // _isInfluencerLink(d) {
-        //   const s = typeof d.source === "object" ? d.source.id : d.source;
-        //   const t = typeof d.target === "object" ? d.target.id : d.target;
-        //   const sN = _nodes[s];
-        //   const tN = _nodes[t];
-        //   return sN.isInfluencer || tN.isInfluencer;
-        // },
+        let _seed = 42;
+        let _time50 = null;
+        let _time90 = null;
 
         // Alpine コンポーネント定義
         function simulator() {
           let _startTime = 0;
-          let _time50 = null;
-          let _time90 = null;
-          let _seed = 42;
           let _stepRequested = false;
 
           return {
@@ -1949,14 +2093,13 @@
             /**
              * @type {Scenario}
              */
+            theme: "dark",
             scenario: "basic",
             userCount: 100,
             mParam: 1,
-            influencerCount: 2,
 
             speedSlider: 100,
             speedMultiplier: 1.0,
-            showSpeedIcons: true,
             /**
              * @type { "none" | "running" | "paused" | "finished" }
              */
@@ -1964,12 +2107,6 @@
             panelMinimized: false,
             // UI表示用まとめオブジェクト（統計・バランスメータ）
             ui: {
-              reached: "0%",
-              falseCount: "0人",
-              trueCount: "0人",
-              time50: "--",
-              time90: "--",
-              done: "--",
               barFalsePct: 0,
               barIdlePct: 100,
               barTruePct: 0,
@@ -2011,7 +2148,7 @@
               return misInfoSlider.into;
             },
             get correctionSpreadProbability() {
-              return misInfoSlider.into;
+              return trueInfoSlider.into;
             },
             get correctionChance() {
               return correctChanceSlider.into;
@@ -2087,7 +2224,7 @@
                * @param {number} id
                */
               remove(kind, id) {
-                this[kind] = this[kind].filter((i) => i === id);
+                this[kind].ids = this[kind].ids.filter((i) => i !== id);
                 _nodes[id].source = undefined;
                 this[kind].colors = newColorMap(
                   COLORS[kind].hsl,
@@ -2142,6 +2279,8 @@
 
             // ===== Alpine init =====
             init() {
+              applyTheme(this.theme);
+              this.$watch("theme", (name) => applyTheme(name));
               this._buildNetwork();
               this._setupContextMenu();
 
@@ -2155,10 +2294,6 @@
               writeLog(
                 "シミュレーターを起動しました。ノードを右クリックで操作できます。",
               );
-            },
-
-            speedPatterns() {
-              return SPEED_PATTERNS;
             },
 
             // ===== シナリオ切り替え =====
@@ -2178,14 +2313,9 @@
             // ===== ネットワーク操作 =====
             regenerateNetwork() {
               if (this.isSpreading) return;
-              _nodes.forEach((n) => {
-                n.x = undefined;
-                n.y = undefined;
-                n.vx = 0;
-                n.vy = 0;
-              });
-              this._buildNetwork();
+              this.sourceData.clearAll();
               _graphData = [];
+              this._buildNetwork();
               _drawGraph(this.userCount, this.scenario);
               writeLog("ネットワークを再生成しました");
             },
@@ -2238,19 +2368,15 @@
             toggleSource(itemSource) {
               const node = this.contextMenu.node;
               if (node.source === itemSource) {
-                this.sourceData.remove(node.id);
+                this.sourceData.remove(itemSource, node.id);
               } else {
                 if (node.source != null) {
-                  this.sourceData.remove(node.id);
+                  this.sourceData.remove(node.source, node.id);
                 }
-                this.sourceData.push(node.id);
+                this.sourceData.push(itemSource, node.id);
               }
-              this._closeContextMenu();
-            },
-
-            onInfluencerCountChange() {
-              _updateInfluencers(this.influencerCount);
               _updateVisuals(this);
+              this._closeContextMenu();
             },
 
             // ===== シミュレーション制御 =====
@@ -2262,7 +2388,6 @@
               _graphData = [];
               _time50 = null;
               _time90 = null;
-              this.ui = { ...this.ui, time50: "--", time90: "--", done: "--" };
 
               if (this.scenario === "basic") {
                 this._startBasicScenario();
@@ -2311,8 +2436,6 @@
               _resetStat();
               activeLinkMap.clear();
               this.sourceData.clearAll();
-              _shuffleSpeeds();
-              _updateInfluencers(this.influencerCount);
 
               this._renderNetwork(tempLinks);
             },
@@ -2326,14 +2449,9 @@
               const height = svgEl.clientHeight || 600;
 
               // ノード間の距離を制御するパラメータ
-              let linkDist = 50;
-              let repulsion = -100;
-              let colRadius = 20;
-              // (this.userCount > 300) { linkDist = 50; repulsion = -100; colRadius = 10;
-              // (this.userCount > 200) { linkDist = 60; repulsion = -180; colRadius = 14;
-              // (this.userCount > 100) { linkDist = 70; repulsion = -180; colRadius = 14;
-              // (this.userCount > 50) {  linkDist = 50; repulsion = -100; colRadius = 10;
-              // linkDist = 100;   repulsion = -260;   colRadius = 18;
+              // ノードサイズ（64px or 32px）に連動して2段階切り替え
+              const linkDist = 45;
+              const repulsion = -400;
 
               const svg = d3.select("#network");
               if (svg.node().__zoom) svg.node().__zoom = d3.zoomIdentity;
@@ -2385,12 +2503,13 @@
               // .attr("class", "link");
 
               const nodeG = zoomGroup.append("g").attr("class", "nodes");
-              const nodeEnter = nodeG
+              _nodeGSelection = nodeG
                 .selectAll("g.node-g")
                 .data(_nodes)
                 .enter()
                 .append("g")
                 .attr("class", "node-g");
+              const nodeEnter = _nodeGSelection;
 
               const draggable = d3
                 .drag()
@@ -2411,20 +2530,46 @@
                   d.fy = null;
                 });
 
-              _nodeSelection = nodeEnter
-                .append("circle")
-                // .attr("class", (d) => _nodeClass(d))
-                .attr("r", (d) => _nodeRadius(d))
+              // 背景rect（状態色オーバーレイ用ベース）
+              _nodeBgSelection = nodeEnter
+                .append("rect")
+                .attr("class", "node-bg")
+                .attr("x", (d) => -_nodeSize(d) / 2)
+                .attr("y", (d) => -_nodeSize(d) / 2)
+                .attr("width", (d) => _nodeSize(d))
+                .attr("height", (d) => _nodeSize(d))
+                .attr("rx", 4)
                 .call(draggable);
 
-              _labelSelection = nodeEnter
-                .append("text")
-                .attr("class", "speed-label")
-                .attr("text-anchor", "middle");
+              // アイコン画像（上半身トリミング）
+              // <svg>をviewportとして使い、overflow:hiddenで上半分だけ表示
+              // 元画像64×64pxをnodeSize×nodeSize*2で表示してsvgのサイズで切り取る
+              // アイコン画像（32x32トリミング済み画像をノードサイズで表示）
+              nodeEnter
+                .append("image")
+                .attr("class", "node-icon")
+                .attr("x", (d) => -_nodeSize(d) / 2)
+                .attr("y", (d) => -_nodeSize(d) / 2)
+                .attr("width", (d) => _nodeSize(d))
+                .attr("height", (d) => _nodeSize(d))
+                .attr(
+                  "href",
+                  (d) => `icons/icon${String(d.iconId).padStart(3, "0")}.png`,
+                )
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .style("pointer-events", "none");
 
-              // .attr("dy", (d) => -(this._nodeRadius(d) + 3))
-              // .text((d) =>  this.showSpeedIcons ? SPEED_PATTERNS[d.speedIndex].arrow : "")
-              // .style("fill", (d) => SPEED_PATTERNS[d.speedIndex].color);
+              _nodeSelection = nodeEnter
+                .append("rect")
+                .attr("class", "node-overlay")
+                .attr("x", (d) => -_nodeSize(d) / 2)
+                .attr("y", (d) => -_nodeSize(d) / 2)
+                .attr("width", (d) => _nodeSize(d))
+                .attr("height", (d) => _nodeSize(d))
+                .attr("rx", 4)
+                .attr("fill", "transparent")
+                .attr("fill-opacity", 0)
+                .call(draggable);
 
               if (_simulation) _simulation.stop();
 
@@ -2446,7 +2591,7 @@
                   "collision",
                   d3
                     .forceCollide()
-                    .radius(colRadius)
+                    .radius((d) => _nodeSize(d) / 2 + 4)
                     .strength(0.8)
                     .iterations(2),
                 )
@@ -2479,6 +2624,7 @@
               _nodeSelection.on("contextmenu", (event, node) => {
                 event.preventDefault();
                 node.isHighlighted = true;
+                _updateVisuals(this);
                 this.contextMenu = newContextMenu(
                   event.clientX,
                   event.clientY,
@@ -2503,16 +2649,8 @@
                 this.contextMenu.node.isHighlighted = false;
                 this.contextMenu = null;
                 _updateVisuals(this);
+                _updateVisuals(this);
               }
-            },
-
-            changeSpeed(index) {
-              this.contextMenu.node.speedIndex = index;
-              this.updateSpeedLabels();
-              this._closeContextMenu();
-            },
-            updateSpeedLabels() {
-              drawSpeedIcons(this.showSpeedIcons);
             },
 
             _makeDraggable(parent, el, handle = null) {
@@ -2556,6 +2694,51 @@
                 document.getElementById("main"),
                 document.getElementById("balanceFloat"),
               );
+              this._setupPanelResize(document.getElementById("livePanel"));
+            },
+
+            _setupPanelResize(panel) {
+              const handles = panel.querySelectorAll(".resize-handle");
+              handles.forEach((handle) => {
+                handle.addEventListener("mousedown", (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const dir = handle.dataset.dir;
+                  const startX = e.clientX;
+                  const startY = e.clientY;
+                  const startW = panel.offsetWidth;
+                  const startH = panel.offsetHeight;
+                  const startL = panel.offsetLeft;
+                  const startT = panel.offsetTop;
+                  const onMove = (e) => {
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    const minW = 280,
+                      minH = 160;
+                    if (dir.includes("e"))
+                      panel.style.width = `${Math.max(minW, startW + dx)}px`;
+                    if (dir.includes("s"))
+                      panel.style.height = `${Math.max(minH, startH + dy)}px`;
+                    if (dir.includes("w")) {
+                      const nw = Math.max(minW, startW - dx);
+                      panel.style.width = `${nw}px`;
+                      panel.style.left = `${startL + startW - nw}px`;
+                    }
+                    if (dir.includes("n")) {
+                      const nh = Math.max(minH, startH - dy);
+                      panel.style.height = `${nh}px`;
+                      panel.style.top = `${startT + startH - nh}px`;
+                    }
+                  };
+                  const onUp = () => {
+                    document.removeEventListener("mousemove", onMove);
+                    document.removeEventListener("mouseup", onUp);
+                    _drawGraph(this.userCount, this.scenario);
+                  };
+                  document.addEventListener("mousemove", onMove);
+                  document.addEventListener("mouseup", onUp);
+                });
+              });
             },
             _setFloatingPanelPositions() {
               const pr = document
@@ -2662,14 +2845,17 @@
                         from: event.id,
                         at:
                           currentTime +
-                          this._effectiveDelay(_nodes[nid].speedIndex),
+                          (BASE_SPREAD_DELAY * (0.5 + Math.random())) /
+                            this.speedMultiplier,
                         sourceId: event.sourceId,
                       });
                     });
                   }
 
-                  this._updateUiMetrics();
-                  this._recordSnapshot(currentTime / BASE_SPREAD_DELAY);
+                  this._updateUiMetrics(
+                    (performance.now() - _startTime) / 1000,
+                  );
+                  this._recordSnapshot((performance.now() - _startTime) / 1000);
                 }
                 this._finishSpread("拡散完了");
               } catch (e) {
@@ -2766,6 +2952,20 @@
                       );
                     },
                   );
+                  // 訂正情報が拒否された場合もリンクを記録（試みた証跡）
+                  if (
+                    !oldAdoption &&
+                    event.type === "true" &&
+                    event.from != null
+                  ) {
+                    activeLinkMap.set(
+                      event.from,
+                      event.id,
+                      "true",
+                      event.sourceId,
+                    );
+                    _updateVisuals(this);
+                  }
                   if (oldAdoption) {
                     updateStat(oldAdoption, node.adoption);
                     if (event.from != null) {
@@ -2791,14 +2991,17 @@
                         from: event.id,
                         at:
                           currentTime +
-                          this._effectiveDelay(_nodes[nid].speedIndex),
+                          (BASE_SPREAD_DELAY * (0.5 + Math.random())) /
+                            this.speedMultiplier,
                         sourceId: event.sourceId,
                         type: event.type,
                       });
                     });
                   }
-                  this._updateUiMetrics();
-                  this._recordSnapshot(currentTime / BASE_SPREAD_DELAY);
+                  this._updateUiMetrics(
+                    (performance.now() - _startTime) / 1000,
+                  );
+                  this._recordSnapshot((performance.now() - _startTime) / 1000);
                 }
                 this._finishSpread("シナリオ終了");
               } catch (e) {
@@ -2822,32 +3025,22 @@
             _wait(ms) {
               return new Promise((r) => setTimeout(r, ms));
             },
-            /**
-             * @param { number } speedIndex
-             */
-            _effectiveDelay(speedIndex) {
-              return SPEED_PATTERNS[speedIndex].ms / this.speedMultiplier;
-            },
-
-            _updateUiMetrics() {
+            _updateUiMetrics(currentTimeSec) {
               const total = this.userCount;
               const fp = Math.round((stat.false / total) * 100);
               const tp = Math.round((stat.true / total) * 100);
               const reached = total - stat.vacuous;
               const elapsed = (performance.now() - _startTime) / 1000;
               if (!_time50 && reached >= this.userCount * 0.5) {
-                _time50 = elapsed;
-                this.ui = { ...this.ui, time50: elapsed.toFixed(2) + "秒" };
+                _time50 = { step: currentTimeSec, elapsed: currentTimeSec };
+                writeLog(`⏱ 半数到達：${elapsed.toFixed(2)}秒`);
               }
               if (!_time90 && reached >= this.userCount * 0.9) {
-                _time90 = elapsed;
-                this.ui = { ...this.ui, time90: elapsed.toFixed(2) + "秒" };
+                _time90 = { step: currentTimeSec, elapsed: currentTimeSec };
+                writeLog(`⏱ 90%到達：${elapsed.toFixed(2)}秒`);
               }
               this.ui = {
                 ...this.ui,
-                reached: Math.round((reached / total) * 100) + "%",
-                falseCount: stat.false + "人",
-                trueCount: stat.true + "人",
                 barFalsePct: fp,
                 barTruePct: tp,
                 barIdlePct: Math.max(0, 100 - fp - tp),
@@ -2858,12 +3051,6 @@
               _time50 = null;
               _time90 = null;
               this.ui = {
-                reached: "0%",
-                falseCount: "0人",
-                trueCount: "0人",
-                time50: "--",
-                time90: "--",
-                done: "--",
                 barFalsePct: 0,
                 barIdlePct: 100,
                 barTruePct: 0,
@@ -2872,12 +3059,8 @@
 
             _finishSpread(label) {
               const dur = (performance.now() - _startTime) / 1000;
-              this.ui = {
-                ...this.ui,
-                time50: _time50 ? this.ui.time50 : "未到達",
-                time90: _time90 ? this.ui.time90 : "未到達",
-                done: dur.toFixed(2) + "秒",
-              };
+              if (!_time50) writeLog("⏱ 半数未到達");
+              if (!_time90) writeLog("⏱ 90%未到達");
               this.runStatus = "finished";
               _updateVisuals(this);
               writeLog(`🏁 ${label}：計${dur.toFixed(2)}秒`);
@@ -2886,7 +3069,6 @@
             _softResetStatuses() {
               this.runStatus = "none";
               _stepRequested = false;
-              // this.sourceData.clearAll();
               resetAdoption();
               this._resetUiMetrics();
               _graphData = [];
@@ -2935,31 +3117,9 @@
               }
               return i;
             },
-
-            _getDefaultStartNodeId() {
-              const n = _nodes.find((n) => !n.isInfluencer);
-              return n?.id ?? 0;
-            },
-
-            /**
-             * @param { number } falseId
-             */
-            _getCorrectionSourceId(falseId) {
-              const infs = _nodes.filter(
-                (n) => n.isInfluencer && n.id !== falseId,
-              );
-              if (infs.length > 0) return infs[0].id;
-              const n = _nodes.reduce((best, n) => {
-                if (n.id === falseId) return best;
-                const d = n.degree || 0;
-                const bd = best?.degree || -1;
-                return d > bd ? n : best;
-              }, null);
-              return n?.id ?? 0;
-            },
           };
         }
-        return { simulator };
+        return { simulator, THEME_DOTS, applyTheme };
       })();
     </script>
   </body>
